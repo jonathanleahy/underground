@@ -1,0 +1,310 @@
+.map-overlay-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  position: relative;
+}
+
+.leaflet-map {
+  flex: 1;
+  height: 100%;
+  z-index: 1;
+}
+
+.map-controls {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 320px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.control-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.control-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.control-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #222;
+}
+
+.control-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+
+.line-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.line-toggle {
+  padding: 6px 14px;
+  border: 2px solid;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+  white-space: nowrap;
+}
+
+.line-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.line-toggle.active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.control-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.control-buttons button,
+.map-type-buttons button {
+  flex: 1;
+  padding: 8px 12px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.control-buttons button:hover,
+.map-type-buttons button:hover {
+  background: #e0e0e0;
+}
+
+.map-type-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.map-type-buttons button.active {
+  background: #333;
+  color: white;
+  border-color: #333;
+}
+
+.control-section label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.control-section.stats p {
+  margin: 5px 0;
+  font-size: 13px;
+  color: #666;
+}
+
+/* Popup styles */
+.station-popup {
+  min-width: 200px;
+}
+
+.station-popup h4 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+}
+
+.station-popup p {
+  margin: 8px 0;
+  font-size: 13px;
+  color: #444;
+}
+
+.station-lines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.line-badge {
+  padding: 3px 8px;
+  border-radius: 12px;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Hotel popup styles */
+.hotel-popup {
+  min-width: 200px;
+}
+
+.hotel-popup h4 {
+  margin: 0 0 10px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #6D28D9;
+  border-bottom: 2px solid #8B5CF6;
+  padding-bottom: 5px;
+}
+
+.hotel-popup p {
+  margin: 6px 0;
+  font-size: 13px;
+  color: #444;
+}
+
+/* Leaflet overrides for better appearance */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+}
+
+.leaflet-container {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+/* Hotel pricing styles */
+.hotel-price-info {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 8px 0;
+  font-weight: 600;
+  text-align: center;
+}
+
+.hotel-price-info.unavailable {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+}
+
+.rooms-left {
+  color: #FFE4E1;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px 32px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e0e0e0;
+  border-top: 4px solid #8B5CF6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.loading-subtext {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+/* Hotel booking link */
+.hotel-booking-link {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+  color: white !important;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  text-align: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+  width: 100%;
+}
+
+.hotel-booking-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  background: linear-gradient(135deg, #9F7AEA 0%, #7C3AED 100%);
+}
+
+.hotel-booking-link span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* If hotel is unavailable, style the link differently */
+.hotel-popup .hotel-price-info.unavailable + .hotel-booking-link {
+  background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+}
+
+.hotel-popup .hotel-price-info.unavailable + .hotel-booking-link:hover {
+  background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);
+}

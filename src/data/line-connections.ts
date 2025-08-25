@@ -1,0 +1,515 @@
+// Proper station connections for each London Underground line
+// These define the actual routes and branches
+
+export const lineConnections: Record<string, string[][]> = {
+  'bakerloo': [[
+    'harrow-wealdstone',
+    'kenton',
+    'south-kenton',
+    'north-wembley',
+    'wembley-central',
+    'stonebridge-park',
+    'harlesden',
+    'willesden-junction',
+    'kensal-green',
+    'queens-park',
+    'kilburn-park',
+    'maida-vale',
+    'warwick-avenue',
+    'paddington',
+    'edgware-road',
+    'marylebone',
+    'baker-street',
+    'regents-park',
+    'oxford-circus',
+    'piccadilly-circus',
+    'charing-cross',
+    'embankment',
+    'waterloo',
+    'lambeth-north',
+    'elephant-castle'
+  ]],
+  
+  'central': [
+    // West Ruislip branch
+    [
+      'west-ruislip',
+      'ruislip-gardens',
+      'south-ruislip',
+      'northolt',
+      'greenford',
+      'perivale',
+      'hanger-lane',
+      'north-acton'
+    ],
+    // Ealing Broadway branch
+    [
+      'ealing-broadway',
+      'west-acton',
+      'north-acton'
+    ],
+    // Main line
+    [
+      'north-acton',
+      'east-acton',
+      'white-city',
+      'shepherd-s-bush',
+      'holland-park',
+      'notting-hill-gate',
+      'queensway',
+      'lancaster-gate',
+      'marble-arch',
+      'bond-street',
+      'oxford-circus',
+      'tottenham-court-road',
+      'holborn',
+      'chancery-lane',
+      'st-pauls',
+      'bank',
+      'liverpool-street',
+      'bethnal-green',
+      'mile-end',
+      'stratford',
+      'leyton',
+      'leytonstone'
+    ],
+    // Woodford to Epping branch
+    [
+      'leytonstone',
+      'snaresbrook',
+      'south-woodford',
+      'woodford',
+      'buckhurst-hill',
+      'loughton',
+      'debden',
+      'theydon-bois',
+      'epping'
+    ],
+    // Hainault loop via Woodford
+    [
+      'leytonstone',
+      'wanstead',
+      'redbridge',
+      'gants-hill',
+      'newbury-park',
+      'barkingside',
+      'fairlop',
+      'hainault',
+      'grange-hill',
+      'chigwell',
+      'roding-valley',
+      'woodford'
+    ]
+  ],
+
+  'circle': [[
+    'hammersmith',
+    'goldhawk-road',
+    'shepherd-s-bush-market',
+    'wood-lane',
+    'latimer-road',
+    'ladbroke-grove',
+    'westbourne-park',
+    'royal-oak',
+    'paddington',
+    'edgware-road',
+    'baker-street',
+    'great-portland-street',
+    'euston-square',
+    'kings-cross-st-pancras',
+    'farringdon',
+    'barbican',
+    'moorgate',
+    'liverpool-street',
+    'aldgate',
+    'tower-hill',
+    'monument',
+    'cannon-street',
+    'mansion-house',
+    'blackfriars',
+    'temple',
+    'embankment',
+    'westminster',
+    'st-jamess-park',
+    'victoria',
+    'sloane-square',
+    'south-kensington',
+    'gloucester-road',
+    'high-street-kensington',
+    'notting-hill-gate',
+    'bayswater',
+    'paddington'
+  ]],
+
+  'district': [
+    // Richmond branch
+    [
+      'richmond',
+      'kew-gardens',
+      'gunnersbury',
+      'turnham-green'
+    ],
+    // Ealing branch
+    [
+      'ealing-broadway',
+      'ealing-common',
+      'acton-town',
+      'chiswick-park',
+      'turnham-green'
+    ],
+    // Olympia branch
+    [
+      'earls-court',
+      'west-kensington',
+      'kensington--olympia-'
+    ],
+    // Wimbledon branch
+    [
+      'wimbledon',
+      'wimbledon-park',
+      'southfields',
+      'east-putney',
+      'putney-bridge',
+      'parsons-green',
+      'fulham-broadway',
+      'west-brompton',
+      'earls-court'
+    ],
+    // Main line (Edgware Road branch)
+    [
+      'edgware-road',
+      'paddington',
+      'bayswater',
+      'notting-hill-gate',
+      'high-street-kensington',
+      'earls-court'
+    ],
+    // Main line
+    [
+      'turnham-green',
+      'stamford-brook',
+      'ravenscourt-park',
+      'hammersmith',
+      'barons-court',
+      'west-kensington',
+      'earls-court',
+      'gloucester-road',
+      'south-kensington',
+      'sloane-square',
+      'victoria',
+      'st-jamess-park',
+      'westminster',
+      'embankment',
+      'temple',
+      'blackfriars',
+      'mansion-house',
+      'cannon-street',
+      'monument',
+      'tower-hill',
+      'aldgate-east',
+      'whitechapel',
+      'stepney-green',
+      'mile-end',
+      'bow-road',
+      'bromley-by-bow',
+      'west-ham',
+      'plaistow',
+      'upton-park',
+      'east-ham',
+      'barking',
+      'upminster'
+    ]
+  ],
+
+  'hammersmith-city': [[
+    'hammersmith',
+    'goldhawk-road',
+    'shepherd-s-bush-market',
+    'wood-lane',
+    'latimer-road',
+    'ladbroke-grove',
+    'westbourne-park',
+    'royal-oak',
+    'paddington',
+    'edgware-road',
+    'baker-street',
+    'great-portland-street',
+    'euston-square',
+    'kings-cross-st-pancras',
+    'farringdon',
+    'barbican',
+    'moorgate',
+    'liverpool-street',
+    'aldgate-east',
+    'whitechapel',
+    'stepney-green',
+    'mile-end',
+    'bow-road',
+    'bromley-by-bow',
+    'west-ham',
+    'plaistow',
+    'upton-park',
+    'east-ham',
+    'barking'
+  ]],
+
+  'jubilee': [[
+    'stanmore',
+    'canons-park',
+    'queensbury',
+    'kingsbury',
+    'wembley-park',
+    'neasden',
+    'dollis-hill',
+    'willesden-green',
+    'kilburn',
+    'west-hampstead',
+    'finchley-road',
+    'swiss-cottage',
+    'st-johns-wood',
+    'baker-street',
+    'bond-street',
+    'green-park',
+    'westminster',
+    'waterloo',
+    'southwark',
+    'london-bridge',
+    'bermondsey',
+    'canada-water',
+    'canary-wharf',
+    'north-greenwich',
+    'canning-town',
+    'west-ham',
+    'stratford'
+  ]],
+
+  'metropolitan': [
+    // Uxbridge branch
+    [
+      'uxbridge',
+      'hillingdon',
+      'ickenham',
+      'ruislip',
+      'ruislip-manor',
+      'eastcote',
+      'rayners-lane',
+      'west-harrow',
+      'harrow-on-the-hill'
+    ],
+    // Watford branch
+    [
+      'watford',
+      'croxley',
+      'moor-park',
+      'northwood',
+      'northwood-hills',
+      'pinner',
+      'north-harrow',
+      'harrow-on-the-hill'
+    ],
+    // Amersham/Chesham branch
+    [
+      'amersham',
+      'chalfont-latimer',
+      'chorleywood',
+      'rickmansworth',
+      'moor-park'
+    ],
+    [
+      'chesham',
+      'chalfont-latimer'
+    ],
+    // Main line
+    [
+      'harrow-on-the-hill',
+      'northwick-park',
+      'preston-road',
+      'wembley-park',
+      'finchley-road',
+      'baker-street',
+      'great-portland-street',
+      'euston-square',
+      'kings-cross-st-pancras',
+      'farringdon',
+      'barbican',
+      'moorgate',
+      'liverpool-street',
+      'aldgate'
+    ]
+  ],
+
+  'northern': [
+    // Edgware branch
+    [
+      'edgware',
+      'burnt-oak',
+      'colindale',
+      'hendon-central',
+      'brent-cross',
+      'golders-green',
+      'hampstead',
+      'belsize-park',
+      'chalk-farm',
+      'camden-town'
+    ],
+    // High Barnet branch
+    [
+      'high-barnet',
+      'totteridge---whetstone',
+      'woodside-park',
+      'west-finchley',
+      'finchley-central',
+      'east-finchley',
+      'highgate',
+      'archway',
+      'tufnell-park',
+      'kentish-town',
+      'camden-town'
+    ],
+    // Mill Hill East branch
+    [
+      'mill-hill-east',
+      'finchley-central'
+    ],
+    // Charing Cross branch
+    [
+      'camden-town',
+      'mornington-crescent',
+      'euston',
+      'warren-street',
+      'goodge-street',
+      'tottenham-court-road',
+      'leicester-square',
+      'charing-cross',
+      'embankment',
+      'waterloo',
+      'kennington'
+    ],
+    // Bank branch
+    [
+      'camden-town',
+      'euston',
+      'kings-cross-st-pancras',
+      'angel',
+      'old-street',
+      'moorgate',
+      'bank',
+      'london-bridge',
+      'borough',
+      'elephant-castle',
+      'kennington'
+    ],
+    // Morden branch
+    [
+      'kennington',
+      'oval',
+      'stockwell',
+      'clapham-north',
+      'clapham-common',
+      'clapham-south',
+      'balham',
+      'tooting-bec',
+      'tooting-broadway',
+      'colliers-wood',
+      'south-wimbledon',
+      'morden'
+    ]
+  ],
+
+  'piccadilly': [
+    // Heathrow branch
+    [
+      'heathrow-terminal-5',
+      'heathrow-terminals-2-3'
+    ],
+    [
+      'heathrow-terminal-4',
+      'heathrow-terminals-2-3'
+    ],
+    [
+      'heathrow-terminals-2-3',
+      'hatton-cross',
+      'hounslow-west',
+      'hounslow-central',
+      'hounslow-east',
+      'osterley',
+      'boston-manor',
+      'northfields',
+      'south-ealing',
+      'acton-town'
+    ],
+    // Uxbridge branch
+    [
+      'uxbridge',
+      'hillingdon',
+      'ickenham',
+      'ruislip',
+      'ruislip-manor',
+      'eastcote',
+      'rayners-lane',
+      'south-harrow',
+      'sudbury-hill',
+      'sudbury-town',
+      'alperton',
+      'park-royal',
+      'north-ealing',
+      'ealing-common',
+      'acton-town'
+    ],
+    // Main line
+    [
+      'acton-town',
+      'turnham-green',
+      'hammersmith',
+      'barons-court',
+      'earls-court',
+      'gloucester-road',
+      'south-kensington',
+      'knightsbridge',
+      'hyde-park-corner',
+      'green-park',
+      'piccadilly-circus',
+      'leicester-square',
+      'covent-garden',
+      'holborn',
+      'russell-square',
+      'kings-cross-st-pancras',
+      'caledonian-road',
+      'holloway-road',
+      'arsenal',
+      'finsbury-park',
+      'manor-house',
+      'turnpike-lane',
+      'wood-green',
+      'bounds-green',
+      'arnos-grove',
+      'southgate',
+      'oakwood',
+      'cockfosters'
+    ]
+  ],
+
+  'victoria': [[
+    'walthamstow-central',
+    'blackhorse-road',
+    'tottenham-hale',
+    'seven-sisters',
+    'finsbury-park',
+    'highbury---islington',
+    'king-s-cross-st-pancras',
+    'euston',
+    'warren-street',
+    'oxford-circus',
+    'green-park',
+    'victoria',
+    'pimlico',
+    'vauxhall',
+    'stockwell',
+    'brixton'
+  ]],
+
+  'waterloo-city': [[
+    'waterloo',
+    'bank'
+  ]]
+};

@@ -1,0 +1,2284 @@
+{
+  "checkIn": "2024-12-28",
+  "nights": 1,
+  "generated": "2025-08-25T23:11:59.812Z",
+  "hotels": [
+    {
+      "id": "london-edmonton",
+      "name": "London Edmonton",
+      "lat": 51.6215,
+      "lng": -0.0707,
+      "area": "Edmonton",
+      "nearestTube": "Tottenham Hale",
+      "pricing": {
+        "hotelId": "london-edmonton",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 4,
+        "price": {
+          "currency": "GBP",
+          "amount": 59,
+          "originalAmount": 65,
+          "breakdown": {
+            "room": 50.15,
+            "tax": 8.85
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 59,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 77,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 59,
+            "available": true
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-heathrow-t4",
+      "name": "London Heathrow Terminal 4",
+      "lat": 51.458,
+      "lng": -0.4458,
+      "area": "Heathrow",
+      "nearestTube": "Heathrow Terminal 4",
+      "pricing": {
+        "hotelId": "london-heathrow-t4",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 5,
+        "price": {
+          "currency": "GBP",
+          "amount": 62,
+          "originalAmount": 70,
+          "breakdown": {
+            "room": 52.699999999999996,
+            "tax": 9.299999999999999
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 62,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 81,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 62,
+            "available": true
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-harrow",
+      "name": "London Harrow",
+      "lat": 51.5798,
+      "lng": -0.3354,
+      "area": "Harrow",
+      "nearestTube": "Harrow-on-the-Hill",
+      "pricing": {
+        "hotelId": "london-harrow",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 9,
+        "price": {
+          "currency": "GBP",
+          "amount": 68,
+          "originalAmount": 82,
+          "breakdown": {
+            "room": 57.8,
+            "tax": 10.2
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 68,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 88,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 68,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-ealing",
+      "name": "London Ealing",
+      "lat": 51.5133,
+      "lng": -0.304,
+      "area": "Ealing",
+      "nearestTube": "Ealing Broadway",
+      "pricing": {
+        "hotelId": "london-ealing",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 10,
+        "price": {
+          "currency": "GBP",
+          "amount": 75,
+          "originalAmount": 77,
+          "breakdown": {
+            "room": 63.75,
+            "tax": 11.25
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 75,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 98,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 75,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-stratford",
+      "name": "London Stratford",
+      "lat": 51.5434,
+      "lng": -0.0035,
+      "area": "Stratford",
+      "nearestTube": "Stratford",
+      "pricing": {
+        "hotelId": "london-stratford",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 77,
+          "originalAmount": 93,
+          "breakdown": {
+            "room": 65.45,
+            "tax": 11.549999999999999
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 77,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 100,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 77,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-clapham",
+      "name": "London Clapham",
+      "lat": 51.4618,
+      "lng": -0.1382,
+      "area": "Clapham",
+      "nearestTube": "Clapham Common",
+      "pricing": {
+        "hotelId": "london-clapham",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 79,
+          "originalAmount": 88,
+          "breakdown": {
+            "room": 67.14999999999999,
+            "tax": 11.85
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 79,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 103,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 79,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-covent-garden",
+      "name": "Hub London Covent Garden",
+      "lat": 51.5117,
+      "lng": -0.1246,
+      "area": "Covent Garden",
+      "nearestTube": "Covent Garden",
+      "pricing": {
+        "hotelId": "london-covent-garden",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 5,
+        "price": {
+          "currency": "GBP",
+          "amount": 83,
+          "originalAmount": 85,
+          "breakdown": {
+            "room": 70.55,
+            "tax": 12.45
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 83,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 108,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 83,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-putney-bridge",
+      "name": "London Putney Bridge",
+      "lat": 51.4682,
+      "lng": -0.2089,
+      "area": "Putney",
+      "nearestTube": "Putney Bridge",
+      "pricing": {
+        "hotelId": "london-putney-bridge",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 7,
+        "price": {
+          "currency": "GBP",
+          "amount": 94,
+          "originalAmount": 113,
+          "breakdown": {
+            "room": 79.89999999999999,
+            "tax": 14.1
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 94,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 122,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 94,
+            "available": true
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-victoria",
+      "name": "London Victoria",
+      "lat": 51.4947,
+      "lng": -0.1447,
+      "area": "Victoria",
+      "nearestTube": "Victoria",
+      "pricing": {
+        "hotelId": "london-victoria",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 9,
+        "price": {
+          "currency": "GBP",
+          "amount": 98,
+          "originalAmount": 117,
+          "breakdown": {
+            "room": 83.3,
+            "tax": 14.7
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 98,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 127,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 98,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-canary-wharf",
+      "name": "London Canary Wharf",
+      "lat": 51.505,
+      "lng": -0.0195,
+      "area": "Canary Wharf",
+      "nearestTube": "Canary Wharf",
+      "pricing": {
+        "hotelId": "london-canary-wharf",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 2,
+        "price": {
+          "currency": "GBP",
+          "amount": 111,
+          "originalAmount": 127,
+          "breakdown": {
+            "room": 94.35,
+            "tax": 16.65
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 111,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 144,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 111,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-county-hall",
+      "name": "London County Hall",
+      "lat": 51.5019,
+      "lng": -0.1195,
+      "area": "Waterloo",
+      "nearestTube": "Waterloo",
+      "pricing": {
+        "hotelId": "london-county-hall",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 1,
+        "price": {
+          "currency": "GBP",
+          "amount": 113,
+          "originalAmount": 129,
+          "breakdown": {
+            "room": 96.05,
+            "tax": 16.95
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 113,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 147,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 113,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-ruislip",
+      "name": "London Ruislip",
+      "lat": 51.5737,
+      "lng": -0.4213,
+      "area": "Ruislip",
+      "nearestTube": "Ruislip",
+      "pricing": {
+        "hotelId": "london-ruislip",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 8,
+        "price": {
+          "currency": "GBP",
+          "amount": 115,
+          "originalAmount": 119,
+          "breakdown": {
+            "room": 97.75,
+            "tax": 17.25
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 115,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 150,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 115,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-holborn",
+      "name": "London Holborn",
+      "lat": 51.5176,
+      "lng": -0.12,
+      "area": "Holborn",
+      "nearestTube": "Holborn",
+      "pricing": {
+        "hotelId": "london-holborn",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 1,
+        "price": {
+          "currency": "GBP",
+          "amount": 116,
+          "originalAmount": 117,
+          "breakdown": {
+            "room": 98.6,
+            "tax": 17.4
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 116,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 151,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 116,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-beckton",
+      "name": "London Beckton",
+      "lat": 51.5156,
+      "lng": 0.0617,
+      "area": "Beckton",
+      "nearestTube": "Beckton DLR",
+      "pricing": {
+        "hotelId": "london-beckton",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 4,
+        "price": {
+          "currency": "GBP",
+          "amount": 119,
+          "originalAmount": 125,
+          "breakdown": {
+            "room": 101.14999999999999,
+            "tax": 17.849999999999998
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 119,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 155,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 119,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-bank-tower",
+      "name": "London Bank (Tower)",
+      "lat": 51.5115,
+      "lng": -0.083,
+      "area": "Tower Hill",
+      "nearestTube": "Tower Hill",
+      "pricing": {
+        "hotelId": "london-bank-tower",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 5,
+        "price": {
+          "currency": "GBP",
+          "amount": 125,
+          "originalAmount": 127,
+          "breakdown": {
+            "room": 106.25,
+            "tax": 18.75
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 125,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 163,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 125,
+            "available": true
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-lewisham",
+      "name": "London Lewisham",
+      "lat": 51.4563,
+      "lng": -0.0131,
+      "area": "Lewisham",
+      "nearestTube": "Lewisham DLR",
+      "pricing": {
+        "hotelId": "london-lewisham",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 128,
+          "originalAmount": 145,
+          "breakdown": {
+            "room": 108.8,
+            "tax": 19.2
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 128,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 166,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 128,
+            "available": false
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-heathrow-bath-road",
+      "name": "London Heathrow Bath Road",
+      "lat": 51.4816,
+      "lng": -0.4394,
+      "area": "Heathrow",
+      "nearestTube": "Heathrow Terminals 2-3",
+      "pricing": {
+        "hotelId": "london-heathrow-bath-road",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 2,
+        "price": {
+          "currency": "GBP",
+          "amount": 128,
+          "originalAmount": 137,
+          "breakdown": {
+            "room": 108.8,
+            "tax": 19.2
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 128,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 166,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 128,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-ilford",
+      "name": "London Ilford",
+      "lat": 51.5591,
+      "lng": 0.0698,
+      "area": "Ilford",
+      "nearestTube": "Ilford",
+      "pricing": {
+        "hotelId": "london-ilford",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 6,
+        "price": {
+          "currency": "GBP",
+          "amount": 135,
+          "originalAmount": 142,
+          "breakdown": {
+            "room": 114.75,
+            "tax": 20.25
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 135,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 176,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 135,
+            "available": true
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-angel-islington",
+      "name": "London Angel Islington",
+      "lat": 51.5344,
+      "lng": -0.1059,
+      "area": "Islington",
+      "nearestTube": "Angel",
+      "pricing": {
+        "hotelId": "london-angel-islington",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 5,
+        "price": {
+          "currency": "GBP",
+          "amount": 139,
+          "originalAmount": 149,
+          "breakdown": {
+            "room": 118.14999999999999,
+            "tax": 20.849999999999998
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 139,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 181,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 139,
+            "available": false
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-wimbledon",
+      "name": "London Wimbledon",
+      "lat": 51.4214,
+      "lng": -0.2064,
+      "area": "Wimbledon",
+      "nearestTube": "Wimbledon",
+      "pricing": {
+        "hotelId": "london-wimbledon",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 1,
+        "price": {
+          "currency": "GBP",
+          "amount": 139,
+          "originalAmount": 149,
+          "breakdown": {
+            "room": 118.14999999999999,
+            "tax": 20.849999999999998
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 139,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 181,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 139,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-chiswick",
+      "name": "London Chiswick",
+      "lat": 51.4918,
+      "lng": -0.2558,
+      "area": "Chiswick",
+      "nearestTube": "Turnham Green",
+      "pricing": {
+        "hotelId": "london-chiswick",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 7,
+        "price": {
+          "currency": "GBP",
+          "amount": 140,
+          "originalAmount": 146,
+          "breakdown": {
+            "room": 119,
+            "tax": 21
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 140,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 182,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 140,
+            "available": true
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-croydon",
+      "name": "London Croydon",
+      "lat": 51.3727,
+      "lng": -0.1099,
+      "area": "Croydon",
+      "nearestTube": "East Croydon",
+      "pricing": {
+        "hotelId": "london-croydon",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 3,
+        "price": {
+          "currency": "GBP",
+          "amount": 144,
+          "originalAmount": 154,
+          "breakdown": {
+            "room": 122.39999999999999,
+            "tax": 21.599999999999998
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 144,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 187,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 144,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-wembley",
+      "name": "London Wembley",
+      "lat": 51.5521,
+      "lng": -0.2847,
+      "area": "Wembley",
+      "nearestTube": "Wembley Park",
+      "pricing": {
+        "hotelId": "london-wembley",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 8,
+        "price": {
+          "currency": "GBP",
+          "amount": 145,
+          "originalAmount": 154,
+          "breakdown": {
+            "room": 123.25,
+            "tax": 21.75
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 145,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 189,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 145,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-city-aldgate",
+      "name": "London City (Aldgate)",
+      "lat": 51.5143,
+      "lng": -0.0755,
+      "area": "Aldgate",
+      "nearestTube": "Aldgate",
+      "pricing": {
+        "hotelId": "london-city-aldgate",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 7,
+        "price": {
+          "currency": "GBP",
+          "amount": 150,
+          "originalAmount": 160,
+          "breakdown": {
+            "room": 127.5,
+            "tax": 22.5
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 150,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 195,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 150,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-kensington-earls-court",
+      "name": "London Kensington (Earl's Court)",
+      "lat": 51.4903,
+      "lng": -0.1929,
+      "area": "Earl's Court",
+      "nearestTube": "Earl's Court",
+      "pricing": {
+        "hotelId": "london-kensington-earls-court",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 152,
+          "originalAmount": 159,
+          "breakdown": {
+            "room": 129.2,
+            "tax": 22.8
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 152,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 198,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 152,
+            "available": false
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-heathrow-t5",
+      "name": "London Heathrow Terminal 5",
+      "lat": 51.4723,
+      "lng": -0.4857,
+      "area": "Heathrow",
+      "nearestTube": "Heathrow Terminal 5",
+      "pricing": {
+        "hotelId": "london-heathrow-t5",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 7,
+        "price": {
+          "currency": "GBP",
+          "amount": 152,
+          "originalAmount": 161,
+          "breakdown": {
+            "room": 129.2,
+            "tax": 22.8
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 152,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 198,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 152,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-finchley",
+      "name": "London Finchley",
+      "lat": 51.6063,
+      "lng": -0.1798,
+      "area": "Finchley",
+      "nearestTube": "Finchley Central",
+      "pricing": {
+        "hotelId": "london-finchley",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 155,
+          "originalAmount": 165,
+          "breakdown": {
+            "room": 131.75,
+            "tax": 23.25
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 155,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 202,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 155,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-enfield",
+      "name": "London Enfield",
+      "lat": 51.6523,
+      "lng": -0.0807,
+      "area": "Enfield",
+      "nearestTube": "Oakwood",
+      "pricing": {
+        "hotelId": "london-enfield",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 8,
+        "price": {
+          "currency": "GBP",
+          "amount": 156,
+          "originalAmount": 172,
+          "breakdown": {
+            "room": 132.6,
+            "tax": 23.4
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 156,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 203,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 156,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-st-pancras",
+      "name": "Hub London Kings Cross",
+      "lat": 51.5302,
+      "lng": -0.1241,
+      "area": "Kings Cross",
+      "nearestTube": "Kings Cross St Pancras",
+      "pricing": {
+        "hotelId": "london-st-pancras",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 5,
+        "price": {
+          "currency": "GBP",
+          "amount": 157,
+          "originalAmount": 169,
+          "breakdown": {
+            "room": 133.45,
+            "tax": 23.55
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 157,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 204,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 157,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-park-royal",
+      "name": "London Park Royal",
+      "lat": 51.5269,
+      "lng": -0.2842,
+      "area": "Park Royal",
+      "nearestTube": "Park Royal",
+      "pricing": {
+        "hotelId": "london-park-royal",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 4,
+        "price": {
+          "currency": "GBP",
+          "amount": 158,
+          "originalAmount": 173,
+          "breakdown": {
+            "room": 134.29999999999998,
+            "tax": 23.7
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 158,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 205,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 158,
+            "available": false
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-brixton",
+      "name": "London Brixton",
+      "lat": 51.4627,
+      "lng": -0.1155,
+      "area": "Brixton",
+      "nearestTube": "Brixton",
+      "pricing": {
+        "hotelId": "london-brixton",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 159,
+          "originalAmount": 166,
+          "breakdown": {
+            "room": 135.15,
+            "tax": 23.849999999999998
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 159,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 207,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 159,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-docklands-excel",
+      "name": "London Docklands (ExCel)",
+      "lat": 51.5088,
+      "lng": 0.0283,
+      "area": "Docklands",
+      "nearestTube": "Custom House DLR",
+      "pricing": {
+        "hotelId": "london-docklands-excel",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 7,
+        "price": {
+          "currency": "GBP",
+          "amount": 162,
+          "originalAmount": 171,
+          "breakdown": {
+            "room": 137.7,
+            "tax": 24.3
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 162,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 211,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 162,
+            "available": true
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-richmond",
+      "name": "London Richmond",
+      "lat": 51.4613,
+      "lng": -0.3037,
+      "area": "Richmond",
+      "nearestTube": "Richmond",
+      "pricing": {
+        "hotelId": "london-richmond",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 7,
+        "price": {
+          "currency": "GBP",
+          "amount": 164,
+          "originalAmount": 181,
+          "breakdown": {
+            "room": 139.4,
+            "tax": 24.599999999999998
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 164,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 213,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 164,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-barnet",
+      "name": "London Barnet",
+      "lat": 51.6525,
+      "lng": -0.1986,
+      "area": "Barnet",
+      "nearestTube": "High Barnet",
+      "pricing": {
+        "hotelId": "london-barnet",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 164,
+          "originalAmount": 180,
+          "breakdown": {
+            "room": 139.4,
+            "tax": 24.599999999999998
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 164,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 213,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 164,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-archway",
+      "name": "London Archway",
+      "lat": 51.5653,
+      "lng": -0.1353,
+      "area": "Archway",
+      "nearestTube": "Archway",
+      "pricing": {
+        "hotelId": "london-archway",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 165,
+          "originalAmount": 183,
+          "breakdown": {
+            "room": 140.25,
+            "tax": 24.75
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 165,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 215,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 165,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-hammersmith",
+      "name": "London Hammersmith",
+      "lat": 51.4927,
+      "lng": -0.2239,
+      "area": "Hammersmith",
+      "nearestTube": "Hammersmith",
+      "pricing": {
+        "hotelId": "london-hammersmith",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 10,
+        "price": {
+          "currency": "GBP",
+          "amount": 166,
+          "originalAmount": 178,
+          "breakdown": {
+            "room": 141.1,
+            "tax": 24.9
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 166,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 216,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 166,
+            "available": true
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-uxbridge",
+      "name": "London Uxbridge",
+      "lat": 51.5459,
+      "lng": -0.4786,
+      "area": "Uxbridge",
+      "nearestTube": "Uxbridge",
+      "pricing": {
+        "hotelId": "london-uxbridge",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 4,
+        "price": {
+          "currency": "GBP",
+          "amount": 170,
+          "originalAmount": 183,
+          "breakdown": {
+            "room": 144.5,
+            "tax": 25.5
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 170,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 221,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 170,
+            "available": true
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-edgware",
+      "name": "London Edgware",
+      "lat": 51.6132,
+      "lng": -0.275,
+      "area": "Edgware",
+      "nearestTube": "Edgware",
+      "pricing": {
+        "hotelId": "london-edgware",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 171,
+          "originalAmount": 182,
+          "breakdown": {
+            "room": 145.35,
+            "tax": 25.65
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 171,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 222,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 171,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-southwark-tate",
+      "name": "London Southwark (Tate Modern)",
+      "lat": 51.5076,
+      "lng": -0.0994,
+      "area": "Southwark",
+      "nearestTube": "Southwark",
+      "pricing": {
+        "hotelId": "london-southwark-tate",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 9,
+        "price": {
+          "currency": "GBP",
+          "amount": 172,
+          "originalAmount": 180,
+          "breakdown": {
+            "room": 146.2,
+            "tax": 25.8
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 172,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 224,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 172,
+            "available": false
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-acton",
+      "name": "London Acton",
+      "lat": 51.5025,
+      "lng": -0.268,
+      "area": "Acton",
+      "nearestTube": "Acton Town",
+      "pricing": {
+        "hotelId": "london-acton",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 8,
+        "price": {
+          "currency": "GBP",
+          "amount": 172,
+          "originalAmount": 180,
+          "breakdown": {
+            "room": 146.2,
+            "tax": 25.8
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 172,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 224,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 172,
+            "available": false
+          }
+        ],
+        "deals": [
+          "Meal Deal - Add breakfast for £9.99"
+        ],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-kensington-olympia",
+      "name": "London Kensington (Olympia)",
+      "lat": 51.4983,
+      "lng": -0.2104,
+      "area": "Kensington",
+      "nearestTube": "Kensington Olympia",
+      "pricing": {
+        "hotelId": "london-kensington-olympia",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 1,
+        "price": {
+          "currency": "GBP",
+          "amount": 173,
+          "originalAmount": 192,
+          "breakdown": {
+            "room": 147.04999999999998,
+            "tax": 25.95
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 173,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 225,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 173,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-tooting",
+      "name": "London Tooting",
+      "lat": 51.4269,
+      "lng": -0.1681,
+      "area": "Tooting",
+      "nearestTube": "Tooting Broadway",
+      "pricing": {
+        "hotelId": "london-tooting",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 178,
+          "originalAmount": 181,
+          "breakdown": {
+            "room": 151.29999999999998,
+            "tax": 26.7
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 178,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 231,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 178,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-southwark",
+      "name": "London Southwark (Bankside)",
+      "lat": 51.5067,
+      "lng": -0.0966,
+      "area": "Southwark",
+      "nearestTube": "Southwark",
+      "pricing": {
+        "hotelId": "london-southwark",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 2,
+        "price": {
+          "currency": "GBP",
+          "amount": 181,
+          "originalAmount": 190,
+          "breakdown": {
+            "room": 153.85,
+            "tax": 27.15
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 181,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 235,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 181,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-greenwich",
+      "name": "London Greenwich",
+      "lat": 51.4779,
+      "lng": -0.0015,
+      "area": "Greenwich",
+      "nearestTube": "Greenwich DLR",
+      "pricing": {
+        "hotelId": "london-greenwich",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 6,
+        "price": {
+          "currency": "GBP",
+          "amount": 181,
+          "originalAmount": 191,
+          "breakdown": {
+            "room": 153.85,
+            "tax": 27.15
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 181,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 235,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 181,
+            "available": true
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-euston",
+      "name": "London Euston",
+      "lat": 51.5275,
+      "lng": -0.1321,
+      "area": "Euston",
+      "nearestTube": "Euston",
+      "pricing": {
+        "hotelId": "london-euston",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 4,
+        "price": {
+          "currency": "GBP",
+          "amount": 184,
+          "originalAmount": 196,
+          "breakdown": {
+            "room": 156.4,
+            "tax": 27.599999999999998
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 184,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 239,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 184,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-tower-bridge",
+      "name": "London Tower Bridge",
+      "lat": 51.5055,
+      "lng": -0.0754,
+      "area": "Tower Bridge",
+      "nearestTube": "Tower Hill",
+      "pricing": {
+        "hotelId": "london-tower-bridge",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 7,
+        "price": {
+          "currency": "GBP",
+          "amount": 188,
+          "originalAmount": 205,
+          "breakdown": {
+            "room": 159.79999999999998,
+            "tax": 28.2
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 188,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 244,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 188,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-paddington",
+      "name": "London Paddington",
+      "lat": 51.5154,
+      "lng": -0.1755,
+      "area": "Paddington",
+      "nearestTube": "Paddington",
+      "pricing": {
+        "hotelId": "london-paddington",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": false,
+        "roomsLeft": 0,
+        "price": {
+          "currency": "GBP",
+          "amount": 188,
+          "originalAmount": 206,
+          "breakdown": {
+            "room": 159.79999999999998,
+            "tax": 28.2
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 188,
+            "available": false
+          },
+          {
+            "type": "Family Room",
+            "price": 244,
+            "available": false
+          },
+          {
+            "type": "Accessible Room",
+            "price": 188,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    },
+    {
+      "id": "london-leicester-square",
+      "name": "London Leicester Square",
+      "lat": 51.5113,
+      "lng": -0.1281,
+      "area": "Leicester Square",
+      "nearestTube": "Leicester Square",
+      "pricing": {
+        "hotelId": "london-leicester-square",
+        "checkIn": "2024-12-28",
+        "nights": 1,
+        "available": true,
+        "roomsLeft": 10,
+        "price": {
+          "currency": "GBP",
+          "amount": 237,
+          "originalAmount": 251,
+          "breakdown": {
+            "room": 201.45,
+            "tax": 35.55
+          }
+        },
+        "roomTypes": [
+          {
+            "type": "Standard Double",
+            "price": 237,
+            "available": true
+          },
+          {
+            "type": "Family Room",
+            "price": 308,
+            "available": true
+          },
+          {
+            "type": "Accessible Room",
+            "price": 237,
+            "available": false
+          }
+        ],
+        "deals": [],
+        "cancellationPolicy": "Free cancellation until 1pm on day of arrival"
+      }
+    }
+  ],
+  "stats": {
+    "totalHotels": 48,
+    "availableHotels": 37,
+    "averagePrice": 139,
+    "lowestPrice": 59,
+    "highestPrice": 237,
+    "byArea": {
+      "Edmonton": {
+        "available": 1,
+        "averagePrice": 59
+      },
+      "Heathrow": {
+        "available": 3,
+        "averagePrice": 114
+      },
+      "Harrow": {
+        "available": 1,
+        "averagePrice": 68
+      },
+      "Ealing": {
+        "available": 1,
+        "averagePrice": 75
+      },
+      "Stratford": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Clapham": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Covent Garden": {
+        "available": 1,
+        "averagePrice": 83
+      },
+      "Putney": {
+        "available": 1,
+        "averagePrice": 94
+      },
+      "Victoria": {
+        "available": 1,
+        "averagePrice": 98
+      },
+      "Canary Wharf": {
+        "available": 1,
+        "averagePrice": 111
+      },
+      "Waterloo": {
+        "available": 1,
+        "averagePrice": 113
+      },
+      "Ruislip": {
+        "available": 1,
+        "averagePrice": 115
+      },
+      "Holborn": {
+        "available": 1,
+        "averagePrice": 116
+      },
+      "Beckton": {
+        "available": 1,
+        "averagePrice": 119
+      },
+      "Tower Hill": {
+        "available": 1,
+        "averagePrice": 125
+      },
+      "Lewisham": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Ilford": {
+        "available": 1,
+        "averagePrice": 135
+      },
+      "Islington": {
+        "available": 1,
+        "averagePrice": 139
+      },
+      "Wimbledon": {
+        "available": 1,
+        "averagePrice": 139
+      },
+      "Chiswick": {
+        "available": 1,
+        "averagePrice": 140
+      },
+      "Croydon": {
+        "available": 1,
+        "averagePrice": 144
+      },
+      "Wembley": {
+        "available": 1,
+        "averagePrice": 145
+      },
+      "Aldgate": {
+        "available": 1,
+        "averagePrice": 150
+      },
+      "Earl's Court": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Finchley": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Enfield": {
+        "available": 1,
+        "averagePrice": 156
+      },
+      "Kings Cross": {
+        "available": 1,
+        "averagePrice": 157
+      },
+      "Park Royal": {
+        "available": 1,
+        "averagePrice": 158
+      },
+      "Brixton": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Docklands": {
+        "available": 1,
+        "averagePrice": 162
+      },
+      "Richmond": {
+        "available": 1,
+        "averagePrice": 164
+      },
+      "Barnet": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Archway": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Hammersmith": {
+        "available": 1,
+        "averagePrice": 166
+      },
+      "Uxbridge": {
+        "available": 1,
+        "averagePrice": 170
+      },
+      "Edgware": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Southwark": {
+        "available": 2,
+        "averagePrice": 177
+      },
+      "Acton": {
+        "available": 1,
+        "averagePrice": 172
+      },
+      "Kensington": {
+        "available": 1,
+        "averagePrice": 173
+      },
+      "Tooting": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Greenwich": {
+        "available": 1,
+        "averagePrice": 181
+      },
+      "Euston": {
+        "available": 1,
+        "averagePrice": 184
+      },
+      "Tower Bridge": {
+        "available": 1,
+        "averagePrice": 188
+      },
+      "Paddington": {
+        "available": 0,
+        "averagePrice": 0
+      },
+      "Leicester Square": {
+        "available": 1,
+        "averagePrice": 237
+      }
+    }
+  }
+}
