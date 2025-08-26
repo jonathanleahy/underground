@@ -3,7 +3,15 @@ import { Station } from '../types/underground';
 import { findRoute } from '../services/routingService';
 import { calculateDistance, metersToWalkingMinutes } from '../utils/distance';
 import { calculateHotelPrice } from '../utils/priceCalculator';
-import { lookupPostcode, findNearestStations, popularPostcodes, isValidUKPostcode, formatPostcode } from '../services/postcodeService';
+import { 
+  lookupPostcode, 
+  findNearestStations, 
+  popularPostcodes, 
+  isValidUKPostcode, 
+  formatPostcode,
+  lookupDestination,
+  getPopularDestinations 
+} from '../services/postcodeService';
 import { getBookingUrl } from '../data/premier-inn-urls';
 import './PostcodeCommuterFinder.css';
 
@@ -232,8 +240,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
       // ONLY update map here, not in updateMapWithSelectedHotels to avoid race conditions
       // Update map with new segments, visible hotels and proper bounds
       if (onSearchComplete && allSearchResults.location) {
-        console.log('Passing visibleHotelIds to map:', Array.from(visibleHotelIds));
-        console.log('Passing filtered results with', filtered.length, 'hotels');
+        // Pass visible hotel IDs and filtered results to map
         onSearchComplete(
           usedSegments, 
           visibleHotelIds, 
@@ -249,21 +256,18 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
     }
   }, [minJourneyTime, maxJourneyTime, minPrice, maxPrice, minStarRating, maxStarRating, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
 
-  const searchWithPostcode = async (searchPostcode: string) => {
-    if (!isValidUKPostcode(searchPostcode)) {
-      setIsValidPostcode(false);
-      return;
-    }
-
+  const searchWithPostcode = async (searchQuery: string) => {
     setIsSearching(true);
     setShowQuickPicks(false);
     
-    // Look up postcode coordinates
-    console.log('Searching for postcode:', searchPostcode);
-    const location = await lookupPostcode(searchPostcode);
-    console.log('Postcode lookup result:', location);
+    // Look up destination (postcode, landmark, or place)
+    const location = await lookupDestination(searchQuery);
     
     if (location) {
+      // Update postcode display with the location name
+      setPostcode(location.name || searchQuery);
+      setIsValidPostcode(true);
+      
       // Find nearest stations
       const nearbyStations = findNearestStations(location.lat, location.lng, stations);
       
@@ -307,7 +311,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         
         // Store all results
         const results = {
-          postcode: formatPostcode(searchPostcode),
+          postcode: location.name || searchQuery,
           location,
           nearbyStations,
           hotels: hotelResults,
@@ -333,7 +337,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
           onSearchComplete(usedSegments, visibleHotelIds, bounds, {
             lat: location.lat,
             lng: location.lng,
-            postcode: formatPostcode(searchPostcode)
+            postcode: location.name || searchQuery
           }, searchResults);
         }
       }
@@ -477,13 +481,13 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
             type="text"
             value={postcode}
             onChange={(e) => {
-              setPostcode(e.target.value.toUpperCase());
+              setPostcode(e.target.value);
               setIsValidPostcode(true);
             }}
             onKeyPress={(e) => e.key === 'Enter' && handlePostcodeSubmit()}
-            placeholder="Enter workplace postcode (e.g., EC2M 4NS)"
+            placeholder="Enter destination (e.g., British Museum, EC2M 4NS)"
             className={`postcode-input ${!isValidPostcode ? 'error' : ''}`}
-            maxLength={8}
+            maxLength={50}
           />
           <button
             onClick={handlePostcodeSubmit}
@@ -495,7 +499,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         </div>
         
         {!isValidPostcode && (
-          <p className="error-message">Please enter a valid UK postcode</p>
+          <p className="error-message">Could not find destination. Try a postcode or landmark name.</p>
         )}
         
         {/* Journey Time Filter */}
