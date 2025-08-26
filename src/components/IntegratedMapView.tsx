@@ -721,9 +721,12 @@ export const IntegratedMapView: React.FC = () => {
                     } else {
                       // Fallback to direct line between stations
                       if (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet') ||
-                          fromStation.name.includes('Whetstone') || toStation.name.includes('Whetstone')) {
+                          fromStation.name.includes('Whetstone') || toStation.name.includes('Whetstone') ||
+                          fromStation.name.includes('Woodside')) {
                         console.log(`No geometry found, using straight line for ${fromStation.name} to ${toStation.name}`);
                       }
+                      
+                      // Default straight line fallback
                       detailedPaths.push([
                         [fromStation.lat, fromStation.lng] as LatLngExpression,
                         [toStation.lat, toStation.lng] as LatLngExpression
