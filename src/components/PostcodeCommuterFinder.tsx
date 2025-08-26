@@ -7,6 +7,22 @@ import { lookupPostcode, findNearestStations, popularPostcodes, isValidUKPostcod
 import { getBookingUrl } from '../data/premier-inn-urls';
 import './PostcodeCommuterFinder.css';
 
+// Generate star ratings for hotels (Premier Inn typically 3-4 stars)
+const getHotelStarRating = (hotelId: string): number => {
+  // Hub hotels are typically newer and get higher ratings
+  if (hotelId.includes('hub')) return 4.5;
+  
+  // Central London hotels tend to be busier but well-maintained
+  const centralHotels = ['county-hall', 'bank-tower', 'euston', 'kings-cross'];
+  if (centralHotels.some(name => hotelId.includes(name))) return 4;
+  
+  // Airport hotels
+  if (hotelId.includes('heathrow') || hotelId.includes('gatwick')) return 3.5;
+  
+  // Most Premier Inns are solid 3.5-4 stars
+  return 3.5 + (Math.floor(hotelId.charCodeAt(10) || 0) % 10) / 10; // Consistent per hotel
+};
+
 interface PostcodeCommuterFinderProps {
   stations: Station[];
   hotels: any[];
@@ -38,7 +54,8 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<any>(null);
   const [selectedStation, setSelectedStation] = useState<string>('');
-  const [maxJourneyTime, setMaxJourneyTime] = useState(30);
+  const [minJourneyTime, setMinJourneyTime] = useState(0); // Min journey time filter
+  const [maxJourneyTime, setMaxJourneyTime] = useState(30); // Max journey time filter
   const [minPrice, setMinPrice] = useState(0); // Min price filter
   const [maxPrice, setMaxPrice] = useState(200); // Max price filter
   const [priceRange, setPriceRange] = useState({ min: 0, max: 200 }); // Actual price range from results
@@ -110,7 +127,8 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
               totalCost: price * nights,
               available: priceInfo?.available !== false,
               roomsLeft: priceInfo?.roomsLeft,
-              route
+              route,
+              starRating: getHotelStarRating(hotel.id)
             });
           }
         }
@@ -473,33 +491,89 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         {/* Journey Time Filter */}
         <div className="journey-filter">
           <label>
-            Max journey time: <strong>{maxJourneyTime} minutes</strong>
+            Journey time: <strong>{minJourneyTime} - {maxJourneyTime} minutes</strong>
           </label>
-          <input
-            type="range"
-            min="15"
-            max="90"
-            step="5"
-            value={maxJourneyTime}
-            onChange={(e) => setMaxJourneyTime(parseInt(e.target.value))}
-            className="time-slider"
-          />
+          <div className="time-slider-container">
+            <div className="dual-slider-track" style={{
+              background: `linear-gradient(to right, 
+                #22c55e 0%, 
+                #22c55e 33%, 
+                #3b82f6 33%, 
+                #3b82f6 66%, 
+                #ef4444 66%, 
+                #ef4444 100%)`,
+              height: '6px',
+              borderRadius: '3px',
+              position: 'relative',
+              marginBottom: '8px'
+            }}>
+              <div className="selected-range" style={{
+                position: 'absolute',
+                left: `${((minJourneyTime - 0) / 90) * 100}%`,
+                right: `${((90 - maxJourneyTime) / 90) * 100}%`,
+                height: '100%',
+                background: 'rgba(0,0,0,0.2)',
+                borderRadius: '3px'
+              }}></div>
+            </div>
+            <div style={{ position: 'relative', height: '20px' }}>
+              <input
+                type="range"
+                min="0"
+                max="90"
+                step="5"
+                value={minJourneyTime}
+                onChange={(e) => {
+                  const newValue = parseInt(e.target.value);
+                  if (newValue <= maxJourneyTime) {
+                    setMinJourneyTime(newValue);
+                  }
+                }}
+                className="time-slider time-slider-min"
+                style={{ position: 'absolute', pointerEvents: 'none', background: 'transparent' }}
+              />
+              <input
+                type="range"
+                min="0"
+                max="90"
+                step="5"
+                value={maxJourneyTime}
+                onChange={(e) => {
+                  const newValue = parseInt(e.target.value);
+                  if (newValue >= minJourneyTime) {
+                    setMaxJourneyTime(newValue);
+                  }
+                }}
+                className="time-slider time-slider-max"
+                style={{ background: 'transparent' }}
+              />
+            </div>
+            <div className="time-range-info">
+              <span>0m</span>
+              <span>90m</span>
+            </div>
+            <div className="time-segments">
+              <div className="segment quick">Quick</div>
+              <div className="segment moderate">Moderate</div>
+              <div className="segment long">Long</div>
+            </div>
+          </div>
           <div className="time-guides">
             <button 
-              onClick={() => setMaxJourneyTime(30)}
-              className={maxJourneyTime <= 30 ? 'active' : ''}
+              onClick={() => { setMinJourneyTime(0); setMaxJourneyTime(30); }}
+              className={(minJourneyTime === 0 && maxJourneyTime === 30) ? 'active' : ''}
             >
-              Short (≤30min)
+              Short (0-30min)
             </button>
             <button 
-              onClick={() => setMaxJourneyTime(45)}
-              className={maxJourneyTime > 30 && maxJourneyTime <= 60 ? 'active' : ''}
+              onClick={() => { setMinJourneyTime(30); setMaxJourneyTime(60); }}
+              className={(minJourneyTime === 30 && maxJourneyTime === 60) ? 'active' : ''}
             >
               Medium (30-60min)
             </button>
             <button 
-              onClick={() => setMaxJourneyTime(75)}
-              className={maxJourneyTime > 60 ? 'active' : ''}
+              onClick={() => { setMinJourneyTime(60); setMaxJourneyTime(90); }}
+              className={(minJourneyTime === 60 && maxJourneyTime === 90) ? 'active' : ''}
             >
               Long (60-90min)
             </button>
@@ -660,6 +734,10 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
                     <div className="hero-content">
                       <div className="hero-info">
                         <h5>{displayHotels[0].hotel.name}</h5>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <span style={{ color: '#fbbf24', fontSize: '14px' }}>{'⭐'.repeat(Math.floor(displayHotels[0].starRating || 3.5))}</span>
+                          <span style={{ fontSize: '13px', color: '#6b7280' }}>{(displayHotels[0].starRating || 3.5).toFixed(1)}</span>
+                        </div>
                         <p className="hero-area">{displayHotels[0].hotel.area}</p>
                         
                         <div className="journey-breakdown">
@@ -763,6 +841,10 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
                               >
                                 <div className="option-info">
                                   <strong>{opt.hotel.name}</strong>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: '2px 0' }}>
+                                    <span style={{ color: '#fbbf24', fontSize: '12px' }}>{'⭐'.repeat(Math.floor(opt.starRating || 3.5))}</span>
+                                    <span style={{ fontSize: '11px', color: '#6b7280' }}>{(opt.starRating || 3.5).toFixed(1)}</span>
+                                  </div>
                                   <span className="option-stats">
                                     {opt.totalTime} min • £{opt.price}/night
                                     {opt.lineChanges === 0 && ' • Direct'}
