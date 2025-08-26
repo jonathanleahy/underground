@@ -48,10 +48,12 @@
   display: flex;
   gap: 8px;
   align-items: flex-end;
+  flex-wrap: wrap;
 }
 
 .station-selector {
   flex: 1;
+  min-width: 120px;
   display: flex;
   flex-direction: column;
 }
@@ -71,6 +73,8 @@
   font-family: Inter, system-ui, -apple-system, sans-serif;
   background: white;
   cursor: pointer;
+  width: 100%;
+  min-width: 120px;
 }
 
 .station-selector select:focus {

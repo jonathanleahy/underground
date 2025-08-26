@@ -97,7 +97,7 @@ export const UndergroundMapOverlay: React.FC = () => {
     children: 0
   });
   const [currentRoute, setCurrentRoute] = useState<JourneyRoute | null>(null);
-  const [showRoutePlanner, setShowRoutePlanner] = useState(false);
+  const [showRoutePlanner, setShowRoutePlanner] = useState(true); // Show by default
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
   const [actualPriceRange, setActualPriceRange] = useState<[number, number]>([0, 500]);
 
@@ -256,36 +256,38 @@ export const UndergroundMapOverlay: React.FC = () => {
         onHotelSelect={handleHotelSelect}
       />
       
-      <div style={{ marginBottom: '12px' }}>
-        <button
-          onClick={() => setShowRoutePlanner(!showRoutePlanner)}
-          style={{
-            padding: '10px 16px',
-            background: showRoutePlanner 
-              ? 'linear-gradient(135deg, #DC2626, #991B1B)' 
-              : 'linear-gradient(135deg, #3B82F6, #1E40AF)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            width: '100%',
-            marginBottom: '8px'
-          }}
-        >
-          {showRoutePlanner ? '✕ Close Journey Planner' : '🚇 Open Journey Planner'}
-        </button>
-      </div>
-      
-      {showRoutePlanner && (
-        <RoutePlanner
-          onRouteFound={handleRouteFound}
-          onStationHighlight={handleStationHighlightFromRoute}
-        />
-      )}
-      
       <div className="map-controls">
+        {/* Journey Planner Section */}
+        <div className="control-section">
+          <button
+            onClick={() => setShowRoutePlanner(!showRoutePlanner)}
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: showRoutePlanner 
+                ? 'linear-gradient(135deg, #6B7280, #4B5563)' 
+                : 'linear-gradient(135deg, #3B82F6, #1E40AF)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: showRoutePlanner ? '12px' : '0'
+            }}
+          >
+            {showRoutePlanner ? '− Hide Journey Planner' : '+ Show Journey Planner 🚇'}
+          </button>
+          
+          {showRoutePlanner && (
+            <RoutePlanner
+              onRouteFound={handleRouteFound}
+              onStationHighlight={handleStationHighlightFromRoute}
+            />
+          )}
+        </div>
+        
+        {/* Hotel Pricing Section */}
         <DatePicker 
           onDateChange={handleDateChange}
           onSearch={handleSearchPrices}
@@ -481,6 +483,28 @@ export const UndergroundMapOverlay: React.FC = () => {
           }
         })}
 
+        {/* Highlight current route if exists */}
+        {currentRoute && currentRoute.segments.map((segment, index) => {
+          // Get coordinates for this segment
+          const segmentCoords: LatLngExpression[] = segment.stationDetails
+            .filter(s => s) // Filter out undefined stations
+            .map(station => [station.lat, station.lng] as LatLngExpression);
+          
+          if (segmentCoords.length < 2) return null;
+          
+          return (
+            <Polyline
+              key={`route-segment-${index}`}
+              positions={segmentCoords}
+              color={segment.color}
+              weight={8}
+              opacity={0.9}
+              dashArray="5, 10"
+              className="route-highlight"
+            />
+          );
+        })}
+        
         {/* Draw stations */}
         {visibleStations.map(station => {
           const position: LatLngExpression = [station.lat, station.lng];
@@ -489,8 +513,18 @@ export const UndergroundMapOverlay: React.FC = () => {
           let fillColor = '#ffffff';
           let borderColor = '#333333';
           
+          // Check if station is part of current route
+          const isInRoute = currentRoute && currentRoute.segments.some(segment => 
+            segment.stations.includes(station.id)
+          );
+          
+          // If station is in route, highlight it
+          if (isInRoute) {
+            fillColor = '#FFD700'; // Gold color for route stations
+            borderColor = '#FFA500'; // Orange border
+          }
           // If lines are selected, color the station by its line
-          if (selectedLines.size > 0) {
+          else if (selectedLines.size > 0) {
             const activeLine = station.lines.find(line => selectedLines.has(line));
             if (activeLine) {
               const lineData = typedData.lines.find(l => l.id === activeLine);
