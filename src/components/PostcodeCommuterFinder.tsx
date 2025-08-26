@@ -158,7 +158,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         onSearchComplete(usedSegments);
       }
     }
-  }, [maxJourneyTime, allSearchResults, onSearchComplete]);
+  }, [maxJourneyTime, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
 
   const searchWithPostcode = async (searchPostcode: string) => {
     if (!isValidUKPostcode(searchPostcode)) {
