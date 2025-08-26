@@ -390,7 +390,14 @@ export const UndergroundMapOverlay: React.FC = () => {
         {/* Commuter Hotel Finder Section */}
         <div className="control-section">
           <button
-            onClick={() => setShowCommuterFinder(!showCommuterFinder)}
+            onClick={() => {
+              setShowCommuterFinder(!showCommuterFinder);
+              // Automatically show hotels when opening commuter finder
+              if (!showCommuterFinder) {
+                setShowHotels(true);
+                setShowPricesOnMap(true);
+              }
+            }}
             style={{
               width: '100%',
               padding: '10px',
@@ -605,24 +612,53 @@ export const UndergroundMapOverlay: React.FC = () => {
 
         {/* Highlight current route if exists */}
         {currentRoute && currentRoute.segments.map((segment, index) => {
-          // Get coordinates for this segment
-          const segmentCoords: LatLngExpression[] = segment.stationDetails
-            .filter(s => s) // Filter out undefined stations
-            .map(station => [station.lat, station.lng] as LatLngExpression);
+          const lineId = segment.line;
+          const realTracks = trackGeometry.trackGeometry[lineId];
           
-          if (segmentCoords.length < 2) return null;
-          
-          return (
-            <Polyline
-              key={`route-segment-${index}`}
-              positions={segmentCoords}
-              color={segment.color}
-              weight={8}
-              opacity={0.9}
-              dashArray="5, 10"
-              className="route-highlight"
-            />
-          );
+          // If we have real tracks and it's enabled, use them for the route
+          if (useRealTracks && realTracks && realTracks.length > 0) {
+            // For simplicity, show all real track segments for this line
+            // In a more sophisticated version, we'd find the exact track segment between stations
+            return realTracks.map((trackPath, pathIndex) => {
+              const coordinates: LatLngExpression[] = trackPath.map(coord => 
+                [coord[0], coord[1]] as LatLngExpression
+              );
+              
+              return (
+                <Polyline
+                  key={`route-real-${index}-${pathIndex}`}
+                  positions={coordinates}
+                  color={segment.color}
+                  weight={10}
+                  opacity={1}
+                  className="route-highlight-real"
+                />
+              );
+            });
+          } else {
+            // Fall back to station-to-station straight lines with dashes
+            const segmentCoords: LatLngExpression[] = segment.stationDetails
+              .filter(s => s) // Filter out undefined stations
+              .map(station => [station.lat, station.lng] as LatLngExpression);
+            
+            if (segmentCoords.length < 2) return null;
+            
+            // Apply bezier curves for smoother lines
+            const curveParams = getLineCurveParams(lineId);
+            const smoothedPath = smoothLinePath(segmentCoords, curveParams);
+            
+            return (
+              <Polyline
+                key={`route-segment-${index}`}
+                positions={smoothedPath}
+                color={segment.color}
+                weight={8}
+                opacity={0.9}
+                dashArray="5, 10"
+                className="route-highlight"
+              />
+            );
+          }
         })}
         
         {/* Draw stations */}
@@ -715,6 +751,26 @@ export const UndergroundMapOverlay: React.FC = () => {
         {showHotels && premierInnData.hotels.map(hotel => {
           const position: LatLngExpression = [hotel.lat, hotel.lng];
           const isHighlighted = highlightedItem?.type === 'hotel' && highlightedItem.id === hotel.id;
+          
+          // Get or estimate pricing
+          let estimatedPrice = 0;
+          if (hotelPricing.has(hotel.id)) {
+            estimatedPrice = hotelPricing.get(hotel.id).price;
+          } else {
+            // Estimate based on distance from center if no actual pricing
+            const centerLat = 51.5074;
+            const centerLng = -0.1278;
+            const distanceFromCenter = calculateDistance(hotel.lat, hotel.lng, centerLat, centerLng);
+            const distanceKm = distanceFromCenter / 1000;
+            if (distanceKm < 3) {
+              estimatedPrice = Math.round(120 + Math.random() * 60);
+            } else if (distanceKm < 8) {
+              estimatedPrice = Math.round(80 + Math.random() * 40);
+            } else {
+              estimatedPrice = Math.round(50 + Math.random() * 30);
+            }
+          }
+          
           const inPriceRange = hotelPricing.size === 0 || isHotelInPriceRange(hotel.id);
           const nearRoute = isHotelNearRoute(hotel);
           const walkingInfo = getNearestRouteStation(hotel);
@@ -814,13 +870,13 @@ export const UndergroundMapOverlay: React.FC = () => {
               </Popup>
             </Marker>
             
-            {/* Show price label on map if enabled, in price range, and near route */}
-            {showPricesOnMap && hotelPricing.has(hotel.id) && inPriceRange && nearRoute && (
+            {/* Show price label on map if enabled */}
+            {showPricesOnMap && inPriceRange && nearRoute && (
               <PriceLabel
                 position={[hotel.lat, hotel.lng]}
-                price={hotelPricing.get(hotel.id).price}
-                available={hotelPricing.get(hotel.id).available}
-                originalPrice={hotelPricing.get(hotel.id).originalPrice}
+                price={estimatedPrice}
+                available={hotelPricing.has(hotel.id) ? hotelPricing.get(hotel.id).available : true}
+                originalPrice={hotelPricing.has(hotel.id) ? hotelPricing.get(hotel.id).originalPrice : null}
               />
             )}
           </React.Fragment>
