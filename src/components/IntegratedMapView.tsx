@@ -4,7 +4,6 @@ import { LatLngExpression, Icon, Map as LeafletMap } from 'leaflet';
 import { Station, Line, UndergroundData } from '../types/underground';
 import undergroundData from '../data/underground-data.json';
 import premierInnData from '../data/premier-inn-hotels.json';
-import trackGeometry from '../data/track-geometry.json';
 import { PostcodeCommuterFinder } from './PostcodeCommuterFinder';
 import { PriceLabel } from './PriceLabel';
 import { HotelDetailsPanel } from './HotelDetailsPanel';
@@ -125,206 +124,6 @@ function MapController({
   // Remove automatic zoom on route change - let handleShowRoute control zooming
   
   return null;
-}
-
-// Helper function to get detailed track geometry between two stations
-function getDetailedTrackGeometry(lineId: string, fromStation: Station, toStation: Station): LatLngExpression[] {
-  // Try to find track geometry for this line
-  const trackData = (trackGeometry as any).trackGeometry;
-  
-  // Debug logging for High Barnet issue
-  if (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet') ||
-      fromStation.name.includes('Whetstone') || toStation.name.includes('Whetstone')) {
-    console.log(`Looking for track between ${fromStation.name} and ${toStation.name}`);
-    console.log(`Station coords: from(${fromStation.lat}, ${fromStation.lng}) to(${toStation.lat}, ${toStation.lng})`);
-  }
-  
-  // Normalize line name for matching
-  const normalizedLine = lineId.toLowerCase().replace('-', ' ');
-  
-  // Look for track data with various key formats
-  const keysToTry = [
-    normalizedLine,
-    `${normalizedLine}`,
-    `circle;${normalizedLine}`, // Some lines are combined
-    `${normalizedLine};circle`,
-    normalizedLine.replace(' & ', ';'),
-    normalizedLine.replace(' ', ';')
-  ];
-  
-  // Collect all possible track segments for this line
-  const allLineSegments: any[][] = [];
-  
-  for (const key in trackData) {
-    // Check if this key matches our line
-    if (key.toLowerCase().includes(normalizedLine) || 
-        normalizedLine.includes(key.toLowerCase()) ||
-        keysToTry.some(tryKey => key.toLowerCase().includes(tryKey))) {
-      const segments = trackData[key];
-      if (Array.isArray(segments)) {
-        allLineSegments.push(...segments);
-        
-        // Debug for High Barnet
-        if ((fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet')) && 
-            key.toLowerCase().includes('northern')) {
-          console.log(`Found ${segments.length} segments for key: ${key}`);
-          // Check if any segment is near High Barnet
-          segments.forEach((seg: any[], idx: number) => {
-            if (seg.length > 0) {
-              const first = seg[0];
-              const last = seg[seg.length - 1];
-              if ((Math.abs(first[0] - 51.650) < 0.01) || (Math.abs(last[0] - 51.650) < 0.01)) {
-                console.log(`Segment ${idx} near High Barnet: first(${first[0]}, ${first[1]}) last(${last[0]}, ${last[1]})`);
-              }
-            }
-          });
-        }
-      }
-    }
-  }
-  
-  if (allLineSegments.length === 0) {
-    return [];
-  }
-  
-  // Try to find segments that connect our stations
-  let bestPath: number[][] = [];
-  let bestScore = Infinity;
-  
-  // First, try to find a single segment that connects the stations
-  for (const segment of allLineSegments) {
-    if (Array.isArray(segment) && segment.length > 1) {
-      const firstPoint = segment[0];
-      const lastPoint = segment[segment.length - 1];
-      
-      if (firstPoint && lastPoint) {
-        // Calculate distances to check if this segment connects our stations
-        const startDist = Math.sqrt(
-          Math.pow(firstPoint[0] - fromStation.lat, 2) + 
-          Math.pow(firstPoint[1] - fromStation.lng, 2)
-        );
-        const endDist = Math.sqrt(
-          Math.pow(lastPoint[0] - toStation.lat, 2) + 
-          Math.pow(lastPoint[1] - toStation.lng, 2)
-        );
-        
-        // Also check reversed direction
-        const startDistRev = Math.sqrt(
-          Math.pow(firstPoint[0] - toStation.lat, 2) + 
-          Math.pow(firstPoint[1] - toStation.lng, 2)
-        );
-        const endDistRev = Math.sqrt(
-          Math.pow(lastPoint[0] - fromStation.lat, 2) + 
-          Math.pow(lastPoint[1] - fromStation.lng, 2)
-        );
-        
-        const forwardScore = startDist + endDist;
-        const reverseScore = startDistRev + endDistRev;
-        const score = Math.min(forwardScore, reverseScore);
-        
-        // If this segment is close to our stations, use it
-        // Increased threshold for High Barnet area which might have less precise data
-        const threshold = (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet') ||
-                          fromStation.name.includes('Whetstone') || toStation.name.includes('Whetstone')) ? 0.05 : 0.02;
-        if (score < bestScore && score < threshold) { // Threshold for proximity
-          bestScore = score;
-          bestPath = segment;
-          
-          if (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet')) {
-            console.log(`Found segment with score ${score} for High Barnet route`);
-          }
-          
-          // Reverse if needed
-          if (reverseScore < forwardScore) {
-            bestPath = segment.slice().reverse();
-          }
-        }
-      }
-    }
-  }
-  
-  // If no single segment found, try to chain segments together
-  if (bestPath.length === 0) {
-    // Find segments that start near fromStation
-    const startSegments = allLineSegments.filter(segment => {
-      if (segment.length > 0) {
-        const firstPoint = segment[0];
-        const lastPoint = segment[segment.length - 1];
-        const distStart = Math.sqrt(
-          Math.pow(firstPoint[0] - fromStation.lat, 2) + 
-          Math.pow(firstPoint[1] - fromStation.lng, 2)
-        );
-        const distEnd = Math.sqrt(
-          Math.pow(lastPoint[0] - fromStation.lat, 2) + 
-          Math.pow(lastPoint[1] - fromStation.lng, 2)
-        );
-        const threshold = (fromStation.name.includes('High Barnet') || fromStation.name.includes('Whetstone')) ? 0.02 : 0.01;
-        return Math.min(distStart, distEnd) < threshold;
-      }
-      return false;
-    });
-    
-    // Find segments that end near toStation
-    const endSegments = allLineSegments.filter(segment => {
-      if (segment.length > 0) {
-        const firstPoint = segment[0];
-        const lastPoint = segment[segment.length - 1];
-        const distStart = Math.sqrt(
-          Math.pow(firstPoint[0] - toStation.lat, 2) + 
-          Math.pow(firstPoint[1] - toStation.lng, 2)
-        );
-        const distEnd = Math.sqrt(
-          Math.pow(lastPoint[0] - toStation.lat, 2) + 
-          Math.pow(lastPoint[1] - toStation.lng, 2)
-        );
-        const threshold = (fromStation.name.includes('High Barnet') || fromStation.name.includes('Whetstone')) ? 0.02 : 0.01;
-        return Math.min(distStart, distEnd) < threshold;
-      }
-      return false;
-    });
-    
-    // If we have both start and end segments, combine them
-    if (startSegments.length > 0 && endSegments.length > 0) {
-      const combinedPath: number[][] = [];
-      
-      // Add the start segment
-      const startSeg = startSegments[0];
-      const startFirstDist = Math.sqrt(
-        Math.pow(startSeg[0][0] - fromStation.lat, 2) + 
-        Math.pow(startSeg[0][1] - fromStation.lng, 2)
-      );
-      if (startFirstDist > 0.01) {
-        combinedPath.push(...startSeg.slice().reverse());
-      } else {
-        combinedPath.push(...startSeg);
-      }
-      
-      // Add the end segment if different
-      if (endSegments[0] !== startSegments[0]) {
-        const endSeg = endSegments[0];
-        const endLastDist = Math.sqrt(
-          Math.pow(endSeg[endSeg.length - 1][0] - toStation.lat, 2) + 
-          Math.pow(endSeg[endSeg.length - 1][1] - toStation.lng, 2)
-        );
-        if (endLastDist > 0.01) {
-          combinedPath.push(...endSeg.slice().reverse());
-        } else {
-          combinedPath.push(...endSeg);
-        }
-      }
-      
-      if (combinedPath.length > 0) {
-        bestPath = combinedPath;
-      }
-    }
-  }
-  
-  if (bestPath.length > 0) {
-    return bestPath.map((coord: number[]) => 
-      [coord[0], coord[1]] as LatLngExpression);
-  }
-  
-  return [];
 }
 
 // Helper function to get line color
@@ -687,7 +486,7 @@ export const IntegratedMapView: React.FC = () => {
           
           <MapClickHandler onMapClick={handleMapClick} />
           
-          {/* Draw tube lines with detailed geometry when available */}
+          {/* Draw tube lines with straight connections between stations */}
           {currentRoute && currentRoute.segments.map((segment, index) => {
                 if (!segment.stationDetails || segment.stationDetails.length < 2) {
                   return null;
@@ -696,50 +495,19 @@ export const IntegratedMapView: React.FC = () => {
                 const lineId = segment.line;
                 const lineColor = getLineColor(lineId);
                 
-                // Try to get detailed track geometry for each station pair
-                const detailedPaths: LatLngExpression[][] = [];
+                // Create straight line paths between consecutive stations
+                const stationPoints: LatLngExpression[] = segment.stationDetails
+                  .filter(station => station !== null)
+                  .map(station => [station.lat, station.lng] as LatLngExpression);
                 
-                for (let i = 0; i < segment.stationDetails.length - 1; i++) {
-                  const fromStation = segment.stationDetails[i];
-                  const toStation = segment.stationDetails[i + 1];
-                  
-                  if (fromStation && toStation) {
-                    // Try to get detailed geometry
-                    const detailedGeometry = getDetailedTrackGeometry(
-                      lineId, 
-                      fromStation, 
-                      toStation
-                    );
-                    
-                    if (detailedGeometry.length > 0) {
-                      detailedPaths.push(detailedGeometry);
-                      
-                      // Debug log for High Barnet
-                      if (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet')) {
-                        console.log(`Using detailed geometry with ${detailedGeometry.length} points for ${fromStation.name} to ${toStation.name}`);
-                      }
-                    } else {
-                      // Fallback to direct line between stations
-                      if (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet') ||
-                          fromStation.name.includes('Whetstone') || toStation.name.includes('Whetstone') ||
-                          fromStation.name.includes('Woodside')) {
-                        console.log(`No geometry found, using straight line for ${fromStation.name} to ${toStation.name}`);
-                      }
-                      
-                      // Default straight line fallback
-                      detailedPaths.push([
-                        [fromStation.lat, fromStation.lng] as LatLngExpression,
-                        [toStation.lat, toStation.lng] as LatLngExpression
-                      ]);
-                    }
-                  }
+                if (stationPoints.length < 2) {
+                  return null;
                 }
                 
-                // Render all path segments
-                return detailedPaths.map((pathPoints, pathIndex) => (
+                return (
                   <Polyline
-                    key={`route-segment-${index}-path-${pathIndex}`}
-                    positions={pathPoints}
+                    key={`route-segment-${index}`}
+                    positions={stationPoints}
                     color={lineColor}
                     weight={6}
                     opacity={0.8}
@@ -747,7 +515,7 @@ export const IntegratedMapView: React.FC = () => {
                     className="route-polyline"
                     pane="overlayPane"
                   />
-                ));
+                );
           })}
           
           {/* Draw stations on route */}
