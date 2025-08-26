@@ -554,14 +554,6 @@
       "nearestTube": "Southwark"
     },
     {
-      "id": "london-st-pancras",
-      "name": "London St Pancras",
-      "lat": 51.5302,
-      "lng": -0.1241,
-      "area": "St Pancras",
-      "nearestTube": "Kings Cross St Pancras"
-    },
-    {
       "id": "london-southgate",
       "name": "London Southgate",
       "lat": 51.6322,

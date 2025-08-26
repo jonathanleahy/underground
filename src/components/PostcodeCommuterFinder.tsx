@@ -317,7 +317,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
           hotels: hotelResults,
           usedSegments,
           visibleHotelIds,
-          formattedPostcode: formatPostcode(searchPostcode) // Store formatted postcode
+          formattedPostcode: location.name || searchQuery // Store formatted location name
         };
         setAllSearchResults(results);
         setSearchResults(results);

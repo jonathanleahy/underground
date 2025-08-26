@@ -184,7 +184,7 @@ export const IntegratedMapView: React.FC = () => {
   ];
   
   const handleHotelSelect = (hotel: any, hotelDetails?: any) => {
-    console.log('Hotel selected:', hotel.name);
+    // Handle hotel selection
     setHighlightedHotel(hotel.id);
     
     // If hotel details provided, show the bottom panel
@@ -305,7 +305,7 @@ export const IntegratedMapView: React.FC = () => {
                                    workLocation.lng > -0.6 && workLocation.lng < 0.3;
       
       if (isValidLondonCoords) {
-        console.log('Setting workplace location:', workLocation);
+        // Set workplace location
         setWorkplaceLocation(workLocation);
       } else {
         console.warn('Invalid coordinates for London area:', workLocation);
@@ -326,7 +326,7 @@ export const IntegratedMapView: React.FC = () => {
       }
       
       setMapBounds(hotelBounds);
-      console.log('Setting map bounds to fit', searchResults.hotels.length, 'hotels from search results and workplace');
+      // Set map bounds to fit hotels from search results and workplace
     } else if (hotelIds && hotelIds.size > 0) {
       // Fallback to hotelIds if searchResults not available
       const visibleHotels = premierInnData.hotels.filter(h => hotelIds.has(h.id));
@@ -337,11 +337,11 @@ export const IntegratedMapView: React.FC = () => {
           hotelBounds.push({ lat: workLocation.lat, lng: workLocation.lng });
         }
         setMapBounds(hotelBounds);
-        console.log('Setting map bounds to fit', visibleHotels.length, 'hotels and workplace');
+        // Set map bounds to fit hotels and workplace
       }
     } else if (bounds) {
       setMapBounds(bounds);
-      console.log('Using provided bounds');
+      // Using provided bounds
     }
   };
   
@@ -517,14 +517,14 @@ export const IntegratedMapView: React.FC = () => {
           })}
           
           {/* Draw stations on route */}
-          {currentRoute && currentRoute.segments.map((segment) => 
-            segment.stationDetails?.map(station => {
+          {currentRoute && currentRoute.segments.map((segment, segmentIndex) => 
+            segment.stationDetails?.map((station, stationIndex) => {
               if (!station) return null;
               const position: LatLngExpression = [station.lat, station.lng];
               
               return (
                 <CircleMarker
-                  key={station.id}
+                  key={`${segment.line}-${station.id}-${segmentIndex}-${stationIndex}`}
                   center={position}
                   radius={6}
                   fillColor="#FFD700"
@@ -549,11 +549,11 @@ export const IntegratedMapView: React.FC = () => {
             .filter(hotel => {
               const isVisible = !visibleHotelIds || visibleHotelIds.has(hotel.id);
               if (visibleHotelIds && !isVisible) {
-                console.log(`Hotel ${hotel.name} (${hotel.id}) filtered out - not in visibleHotelIds`);
+                // Hotel filtered out - not in visibleHotelIds
               } else if (visibleHotelIds && isVisible) {
                 const hotelData = allSearchResults?.hotels?.find((h: any) => h.hotel.id === hotel.id);
                 if (hotelData) {
-                  console.log(`Showing hotel ${hotel.name} (${hotel.id}) with price £${hotelData.price}`);
+                  // Showing hotel with price
                 }
               }
               return isVisible;
@@ -657,7 +657,7 @@ export const IntegratedMapView: React.FC = () => {
                               </div>
                               <div class="popup-actions">
                                 ${hotelData ? `
-                                  <button class="popup-btn route-btn" onclick="console.log('route')">
+                                  <button class="popup-btn route-btn">
                                     ${mapClickedHotelId === hotel.id ? 'Show Details' : 'Show Route'}
                                   </button>
                                 ` : ''}
@@ -796,7 +796,7 @@ export const IntegratedMapView: React.FC = () => {
           hotel={selectedHotelDetails}
           isOpen={detailsPanelOpen}
           onClose={() => setDetailsPanelOpen(false)}
-          onBook={() => console.log('Booking initiated')}
+          onBook={() => {}}
           checkInDate={selectedDate.checkIn || ''}
           nights={selectedDate.nights}
         />
