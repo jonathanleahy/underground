@@ -1028,3 +1028,116 @@
   color: #9333ea;
   font-weight: 600;
 }
+
+/* Star Rating Filter */
+.star-filter {
+  padding: 16px;
+  background: #fef9c3;
+  border-radius: 8px;
+  margin-top: 16px;
+  border: 1px solid #fbbf24;
+}
+
+.star-filter label {
+  display: block;
+  font-size: 14px;
+  color: #92400e;
+  margin-bottom: 12px;
+}
+
+.star-filter strong {
+  color: #451a03;
+  font-size: 16px;
+}
+
+.star-slider-container {
+  position: relative;
+  margin: 16px 0;
+}
+
+.star-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: transparent;
+  outline: none;
+  margin: 8px 0;
+  position: relative;
+}
+
+.star-slider-min {
+  z-index: 2;
+}
+
+.star-slider-max {
+  z-index: 1;
+}
+
+.star-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: 3px solid #fbbf24;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  pointer-events: auto;
+  position: relative;
+  z-index: 3;
+}
+
+.star-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: 3px solid #fbbf24;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  pointer-events: auto;
+  position: relative;
+  z-index: 3;
+}
+
+.star-range-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #92400e;
+  margin: 8px 0;
+}
+
+.star-segments {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.star-segments .segment {
+  flex: 1;
+  text-align: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.star-segments .segment.basic {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.star-segments .segment.good {
+  background: rgba(251, 191, 36, 0.1);
+  color: #d97706;
+  font-weight: 600;
+}
+
+.star-segments .segment.excellent {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+  font-weight: 600;
+}

@@ -59,6 +59,8 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   const [minPrice, setMinPrice] = useState(0); // Min price filter
   const [maxPrice, setMaxPrice] = useState(200); // Max price filter
   const [priceRange, setPriceRange] = useState({ min: 0, max: 200 }); // Actual price range from results
+  const [minStarRating, setMinStarRating] = useState(3); // Min star rating filter
+  const [maxStarRating, setMaxStarRating] = useState(5); // Max star rating filter
   const [showQuickPicks, setShowQuickPicks] = useState(true);
   const [allSearchResults, setAllSearchResults] = useState<any>(null); // Store all results
   const [filteredResults, setFilteredResults] = useState<any>(null); // Store filtered results
@@ -154,14 +156,22 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   // Filter results when journey time or price changes
   useEffect(() => {
     if (allSearchResults && allSearchResults.hotels) {
-      console.log('=== PRICE FILTER DEBUG ===');
-      console.log('Filtering hotels - Max Journey Time:', maxJourneyTime, 'Price Range:', minPrice, '-', maxPrice);
+      console.log('=== FILTER DEBUG ===');
+      console.log('Filtering - Journey:', minJourneyTime, '-', maxJourneyTime, 'Price:', minPrice, '-', maxPrice, 'Stars:', minStarRating, '-', maxStarRating);
       console.log('Total hotels before filter:', allSearchResults.hotels.length);
       
       const filtered = allSearchResults.hotels.filter((hotel: any) => {
-        const passes = hotel.totalTime <= maxJourneyTime && hotel.price >= minPrice && hotel.price <= maxPrice;
-        if (!passes && (hotel.price < minPrice || hotel.price > maxPrice)) {
-          console.log(`Filtering out ${hotel.hotel.name}: price ${hotel.price} not in range ${minPrice}-${maxPrice}`);
+        const rating = hotel.starRating || 3.5;
+        const passes = hotel.totalTime >= minJourneyTime && hotel.totalTime <= maxJourneyTime && 
+                       hotel.price >= minPrice && hotel.price <= maxPrice &&
+                       rating >= minStarRating && rating <= maxStarRating;
+        if (!passes) {
+          if (hotel.price < minPrice || hotel.price > maxPrice) {
+            console.log(`Filtering out ${hotel.hotel.name}: price ${hotel.price} not in range ${minPrice}-${maxPrice}`);
+          }
+          if (rating < minStarRating || rating > maxStarRating) {
+            console.log(`Filtering out ${hotel.hotel.name}: rating ${rating} not in range ${minStarRating}-${maxStarRating}`);
+          }
         }
         return passes;
       });
@@ -237,7 +247,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         );
       }
     }
-  }, [maxJourneyTime, minPrice, maxPrice, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
+  }, [minJourneyTime, maxJourneyTime, minPrice, maxPrice, minStarRating, maxStarRating, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
 
   const searchWithPostcode = async (searchPostcode: string) => {
     if (!isValidUKPostcode(searchPostcode)) {
@@ -577,6 +587,82 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
             >
               Long (60-90min)
             </button>
+          </div>
+        </div>
+        
+        {/* Star Rating Filter */}
+        <div className="star-filter">
+          <label>
+            Star rating: <strong>{minStarRating.toFixed(1)} - {maxStarRating.toFixed(1)}</strong> stars
+          </label>
+          <div className="star-slider-container">
+            <div className="dual-slider-track" style={{
+              background: `linear-gradient(to right, 
+                #ef4444 0%, 
+                #ef4444 20%, 
+                #f97316 20%, 
+                #f97316 40%, 
+                #fbbf24 40%, 
+                #fbbf24 60%, 
+                #22c55e 60%, 
+                #22c55e 80%, 
+                #3b82f6 80%, 
+                #3b82f6 100%)`,
+              height: '6px',
+              borderRadius: '3px',
+              position: 'relative',
+              marginBottom: '8px'
+            }}>
+              <div className="selected-range" style={{
+                position: 'absolute',
+                left: `${((minStarRating - 3) / 2) * 100}%`,
+                right: `${((5 - maxStarRating) / 2) * 100}%`,
+                height: '100%',
+                background: 'rgba(0,0,0,0.2)',
+                borderRadius: '3px'
+              }}></div>
+            </div>
+            <div style={{ position: 'relative', height: '20px' }}>
+              <input
+                type="range"
+                min="3"
+                max="5"
+                step="0.1"
+                value={minStarRating}
+                onChange={(e) => {
+                  const newValue = parseFloat(e.target.value);
+                  if (newValue <= maxStarRating) {
+                    setMinStarRating(newValue);
+                  }
+                }}
+                className="star-slider star-slider-min"
+                style={{ position: 'absolute', pointerEvents: 'none', background: 'transparent' }}
+              />
+              <input
+                type="range"
+                min="3"
+                max="5"
+                step="0.1"
+                value={maxStarRating}
+                onChange={(e) => {
+                  const newValue = parseFloat(e.target.value);
+                  if (newValue >= minStarRating) {
+                    setMaxStarRating(newValue);
+                  }
+                }}
+                className="star-slider star-slider-max"
+                style={{ background: 'transparent' }}
+              />
+            </div>
+            <div className="star-range-info">
+              <span>⭐⭐⭐</span>
+              <span>⭐⭐⭐⭐⭐</span>
+            </div>
+            <div className="star-segments">
+              <div className="segment basic">Basic</div>
+              <div className="segment good">Good</div>
+              <div className="segment excellent">Excellent</div>
+            </div>
           </div>
         </div>
         
