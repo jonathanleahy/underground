@@ -102,8 +102,9 @@ export const UndergroundMapOverlay: React.FC = () => {
   const [showRoutePlanner, setShowRoutePlanner] = useState(true); // Show by default
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
   const [actualPriceRange, setActualPriceRange] = useState<[number, number]>([0, 500]);
-  const [showCommuterFinder, setShowCommuterFinder] = useState(false);
+  const [showCommuterFinder, setShowCommuterFinder] = useState(true); // Default to showing hotel finder
   const [usedLineSegments, setUsedLineSegments] = useState<Map<string, Set<string>> | null>(null);
+  const [visibleHotelIds, setVisibleHotelIds] = useState<Set<string> | null>(null);
 
   const center: LatLngExpression = [
     (typedData.bounds.north + typedData.bounds.south) / 2,
@@ -430,11 +431,12 @@ export const UndergroundMapOverlay: React.FC = () => {
                 setShowPricesOnMap(true);
               }}
               onShowRoute={handleCommuterShowRoute}
-              onSearchComplete={(usedSegments) => {
+              onSearchComplete={(usedSegments, visibleHotelIds) => {
                 // Automatically show hotels and prices when search completes
                 setShowHotels(true);
                 setShowPricesOnMap(true);
                 setUsedLineSegments(usedSegments || null);
+                setVisibleHotelIds(visibleHotelIds || null);
               }}
             />
           )}
@@ -758,7 +760,9 @@ export const UndergroundMapOverlay: React.FC = () => {
         })}
 
         {/* Draw Premier Inn hotels */}
-        {showHotels && premierInnData.hotels.map(hotel => {
+        {showHotels && premierInnData.hotels
+          .filter(hotel => !visibleHotelIds || visibleHotelIds.has(hotel.id))
+          .map(hotel => {
           const position: LatLngExpression = [hotel.lat, hotel.lng];
           const isHighlighted = highlightedItem?.type === 'hotel' && highlightedItem.id === hotel.id;
           

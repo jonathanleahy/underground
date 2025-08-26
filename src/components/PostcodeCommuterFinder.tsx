@@ -18,7 +18,7 @@ interface PostcodeCommuterFinderProps {
   };
   onSelectHotel: (hotel: any) => void;
   onShowRoute: (fromStation: string, toStation: string) => void;
-  onSearchComplete?: (usedSegments?: Map<string, Set<string>>) => void;
+  onSearchComplete?: (usedSegments?: Map<string, Set<string>>, visibleHotelIds?: Set<string>) => void;
 }
 
 export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
@@ -130,9 +130,13 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         return scoreA - scoreB;
       });
       
-      // Recalculate used segments for filtered hotels
+      // Recalculate used segments and visible hotels for filtered results
       const usedSegments = new Map<string, Set<string>>();
+      const visibleHotelIds = new Set<string>();
+      
       filtered.forEach((hotel: any) => {
+        visibleHotelIds.add(hotel.hotel.id);
+        
         if (hotel.route && hotel.route.segments) {
           hotel.route.segments.forEach((segment: any) => {
             if (!usedSegments.has(segment.line)) {
@@ -153,9 +157,9 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         usedSegments
       });
       
-      // Update map with new segments
+      // Update map with new segments and visible hotels
       if (onSearchComplete) {
-        onSearchComplete(usedSegments);
+        onSearchComplete(usedSegments, visibleHotelIds);
       }
     }
   }, [maxJourneyTime, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
@@ -183,9 +187,13 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         // Find best hotels for each nearby station
         const hotelResults = await findBestHotels(nearbyStations);
         
-        // Collect all line segments used in routes
-        const usedSegments = new Map<string, Set<string>>(); // line -> set of station pairs
+        // Collect all line segments and hotel IDs
+        const usedSegments = new Map<string, Set<string>>();
+        const visibleHotelIds = new Set<string>();
+        
         hotelResults.forEach((hotel: any) => {
+          visibleHotelIds.add(hotel.hotel.id);
+          
           if (hotel.route && hotel.route.segments) {
             hotel.route.segments.forEach((segment: any) => {
               if (!usedSegments.has(segment.line)) {
@@ -206,14 +214,15 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
           location,
           nearbyStations,
           hotels: hotelResults,
-          usedSegments // Add this to results
+          usedSegments,
+          visibleHotelIds
         };
         setAllSearchResults(results);
         setSearchResults(results);
         
-        // Call the callback to show hotels on map with used segments info
+        // Call the callback to show hotels on map
         if (onSearchComplete) {
-          onSearchComplete(usedSegments);
+          onSearchComplete(usedSegments, visibleHotelIds);
         }
       }
     } else {
@@ -343,21 +352,11 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
                 {searchResults.nearbyStations.slice(0, 3).map((s: any) => (
                   <button
                     key={s.station.id}
-                    onClick={async () => {
+                    onClick={() => {
                       setSelectedStation(s.station.id);
-                      // Re-run search with this station as primary
-                      const reorderedStations = [
-                        s,
-                        ...searchResults.nearbyStations.filter((ns: any) => ns.station.id !== s.station.id)
-                      ];
-                      const hotelResults = await findBestHotels(reorderedStations);
-                      const results = {
-                        ...searchResults,
-                        hotels: hotelResults
-                      };
-                      setAllSearchResults(results);
-                      setSearchResults(results);
-                    }}
+                      // Just update the selected station without recalculating
+                      // This keeps the data static as requested
+                    }
                     className={`station-pill ${selectedStation === s.station.id ? 'active' : ''}`}
                   >
                     {s.station.name} ({s.walkingMinutes} min)
