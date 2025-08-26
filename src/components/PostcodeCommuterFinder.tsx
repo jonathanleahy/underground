@@ -164,9 +164,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   // Filter results when journey time or price changes
   useEffect(() => {
     if (allSearchResults && allSearchResults.hotels) {
-      console.log('=== FILTER DEBUG ===');
-      console.log('Filtering - Journey:', minJourneyTime, '-', maxJourneyTime, 'Price:', minPrice, '-', maxPrice, 'Stars:', minStarRating, '-', maxStarRating);
-      console.log('Total hotels before filter:', allSearchResults.hotels.length);
+      // Apply filters to hotels
       
       const filtered = allSearchResults.hotels.filter((hotel: any) => {
         const rating = hotel.starRating || 3.5;
@@ -175,17 +173,16 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
                        rating >= minStarRating && rating <= maxStarRating;
         if (!passes) {
           if (hotel.price < minPrice || hotel.price > maxPrice) {
-            console.log(`Filtering out ${hotel.hotel.name}: price ${hotel.price} not in range ${minPrice}-${maxPrice}`);
+            // Price out of range
           }
           if (rating < minStarRating || rating > maxStarRating) {
-            console.log(`Filtering out ${hotel.hotel.name}: rating ${rating} not in range ${minStarRating}-${maxStarRating}`);
+            // Rating out of range
           }
         }
         return passes;
       });
       
-      console.log(`Filtered ${allSearchResults.hotels.length} hotels to ${filtered.length}`);
-      console.log('Filtered hotel IDs:', filtered.map((h: any) => `${h.hotel.name} (${h.hotel.id}): £${h.price}`));
+      // Hotels filtered based on criteria
       
       // Re-sort by score
       filtered.sort((a: any, b: any) => {
@@ -302,11 +299,16 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         // Calculate price range from results
         if (hotelResults.length > 0) {
           const prices = hotelResults.map((h: any) => h.price);
-          const minPrice = Math.min(...prices);
+          const minPriceVal = Math.min(...prices);
           const maxPriceVal = Math.max(...prices);
-          setPriceRange({ min: minPrice, max: maxPriceVal });
-          setMinPrice(minPrice); // Set initial min filter
-          setMaxPrice(maxPriceVal); // Set initial max filter
+          setPriceRange({ min: minPriceVal, max: maxPriceVal });
+          
+          // Only set initial filter values if they haven't been customized
+          // (i.e., if they're still at their default values)
+          if (minPrice === 0 && maxPrice === 200) {
+            setMinPrice(minPriceVal); // Set initial min filter
+            setMaxPrice(maxPriceVal); // Set initial max filter
+          }
         }
         
         // Store all results
