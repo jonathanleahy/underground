@@ -183,6 +183,14 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
       });
       
       // Hotels filtered based on criteria
+      // Log filtering for debugging
+      console.log(`Price filter: £${minPrice} - £${maxPrice}`);
+      console.log(`Filtered ${allSearchResults.hotels.length} hotels to ${filtered.length}`);
+      
+      // Log some examples of what passed the filter
+      filtered.slice(0, 5).forEach((hotel: any) => {
+        console.log(`Included: ${hotel.hotel.name} - price: £${hotel.price}`);
+      });
       
       // Re-sort by score
       filtered.sort((a: any, b: any) => {
