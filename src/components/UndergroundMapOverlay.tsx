@@ -17,6 +17,7 @@ import { smoothLinePath, getLineCurveParams } from '../utils/bezierCurves';
 import { fetchMultipleHotelPricing } from '../services/premier-inn-api';
 import { getBookingUrl } from '../data/premier-inn-urls';
 import { isNearAnyStation, metersToWalkingMinutes, calculateDistance } from '../utils/distance';
+import { calculateHotelPrice } from '../utils/priceCalculator';
 import 'leaflet/dist/leaflet.css';
 import './UndergroundMapOverlay.css';
 
@@ -185,9 +186,13 @@ export const UndergroundMapOverlay: React.FC = () => {
   };
   
   const handleCommuterShowRoute = (fromStation: string, toStation: string) => {
+    console.log('Showing route from:', fromStation, 'to:', toStation);
     const route = findRoute(fromStation, toStation);
+    console.log('Route found:', route);
     if (route) {
       setCurrentRoute(route);
+      // Also ensure hotels are visible
+      setShowHotels(true);
     }
   };
   
@@ -317,6 +322,59 @@ export const UndergroundMapOverlay: React.FC = () => {
       />
       
       <div className="map-controls">
+        {/* Hotel Finder Section - PRIMARY */}
+        <div className="control-section">
+          <button
+            onClick={() => {
+              setShowCommuterFinder(!showCommuterFinder);
+              // Automatically show hotels when opening commuter finder
+              if (!showCommuterFinder) {
+                setShowHotels(true);
+                setShowPricesOnMap(true);
+              }
+            }}
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: showCommuterFinder 
+                ? 'linear-gradient(135deg, #059669, #10B981)' 
+                : 'linear-gradient(135deg, #10B981, #059669)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: showCommuterFinder ? '12px' : '0'
+            }}
+          >
+            {showCommuterFinder ? '✕ Close Hotel Finder' : '🏨 Find Hotels Near Your Destination'}
+          </button>
+          
+          {showCommuterFinder && (
+            <PostcodeCommuterFinder
+              stations={typedData.stations}
+              hotels={premierInnData.hotels}
+              hotelPricing={hotelPricing}
+              selectedDate={selectedDate}
+              onSelectHotel={(hotel) => {
+                setHighlightedItem({ id: hotel.id, type: 'hotel' });
+                setFocusLocation({ lat: hotel.lat, lng: hotel.lng });
+                setShowHotels(true);
+                setShowPricesOnMap(true);
+              }}
+              onShowRoute={handleCommuterShowRoute}
+              onSearchComplete={(usedSegments, visibleHotelIds) => {
+                // Automatically show hotels and prices when search completes
+                setShowHotels(true);
+                setShowPricesOnMap(true);
+                setUsedLineSegments(usedSegments || null);
+                setVisibleHotelIds(visibleHotelIds || null);
+              }}
+            />
+          )}
+        </div>
+        
         {/* Journey Planner Section */}
         <div className="control-section">
           <button
@@ -766,23 +824,13 @@ export const UndergroundMapOverlay: React.FC = () => {
           const position: LatLngExpression = [hotel.lat, hotel.lng];
           const isHighlighted = highlightedItem?.type === 'hotel' && highlightedItem.id === hotel.id;
           
-          // Get or estimate pricing
+          // Get or calculate stable pricing
           let estimatedPrice = 0;
           if (hotelPricing.has(hotel.id)) {
             estimatedPrice = hotelPricing.get(hotel.id).price;
           } else {
-            // Estimate based on distance from center if no actual pricing
-            const centerLat = 51.5074;
-            const centerLng = -0.1278;
-            const distanceFromCenter = calculateDistance(hotel.lat, hotel.lng, centerLat, centerLng);
-            const distanceKm = distanceFromCenter / 1000;
-            if (distanceKm < 3) {
-              estimatedPrice = Math.round(120 + Math.random() * 60);
-            } else if (distanceKm < 8) {
-              estimatedPrice = Math.round(80 + Math.random() * 40);
-            } else {
-              estimatedPrice = Math.round(50 + Math.random() * 30);
-            }
+            // Use deterministic price calculation
+            estimatedPrice = calculateHotelPrice(hotel.id, hotel.lat, hotel.lng, selectedDate.checkIn);
           }
           
           const inPriceRange = hotelPricing.size === 0 || isHotelInPriceRange(hotel.id);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Station } from '../types/underground';
 import { findRoute } from '../services/routingService';
 import { calculateDistance, metersToWalkingMinutes } from '../utils/distance';
+import { calculateHotelPrice } from '../utils/priceCalculator';
 import { lookupPostcode, findNearestStations, popularPostcodes, isValidUKPostcode, formatPostcode } from '../services/postcodeService';
 import { getBookingUrl } from '../data/premier-inn-urls';
 import './PostcodeCommuterFinder.css';
@@ -18,7 +19,7 @@ interface PostcodeCommuterFinderProps {
   };
   onSelectHotel: (hotel: any) => void;
   onShowRoute: (fromStation: string, toStation: string) => void;
-  onSearchComplete?: (usedSegments?: Map<string, Set<string>>, visibleHotelIds?: Set<string>) => void;
+  onSearchComplete?: (usedSegments?: Map<string, Set<string>>, visibleHotelIds?: Set<string>, searchBounds?: { lat: number; lng: number }[]) => void;
 }
 
 export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
@@ -39,6 +40,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   const [showQuickPicks, setShowQuickPicks] = useState(true);
   const [allSearchResults, setAllSearchResults] = useState<any>(null); // Store all results
   const [filteredResults, setFilteredResults] = useState<any>(null); // Store filtered results
+  const [expandedHotels, setExpandedHotels] = useState<Set<string>>(new Set()); // Track expanded hotels
 
   const handlePostcodeSubmit = () => {
     searchWithPostcode(postcode);
@@ -75,9 +77,8 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
             let price = priceInfo?.price;
             
             if (!price) {
-              // Estimate price
-              const distFromCenter = calculateDistance(hotel.lat, hotel.lng, 51.5074, -0.1278) / 1000;
-              price = distFromCenter < 3 ? 140 : distFromCenter < 8 ? 100 : 70;
+              // Use deterministic price calculation
+              price = calculateHotelPrice(hotel.id, hotel.lat, hotel.lng, selectedDate.checkIn);
             }
             
             allHotelOptions.push({
@@ -157,9 +158,9 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         usedSegments
       });
       
-      // Update map with new segments and visible hotels
+      // Update map with new segments and visible hotels (no bounds change on filter)
       if (onSearchComplete) {
-        onSearchComplete(usedSegments, visibleHotelIds);
+        onSearchComplete(usedSegments, visibleHotelIds, undefined);
       }
     }
   }, [maxJourneyTime, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
@@ -220,9 +221,15 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         setAllSearchResults(results);
         setSearchResults(results);
         
-        // Call the callback to show hotels on map
+        // Calculate bounds for map zoom (include destination and hotels)
+        const bounds: { lat: number; lng: number }[] = [
+          location, // Search location
+          ...hotelResults.slice(0, 5).map(h => ({ lat: h.hotel.lat, lng: h.hotel.lng })) // Top 5 hotels
+        ];
+        
+        // Call the callback to show hotels on map and zoom
         if (onSearchComplete) {
-          onSearchComplete(usedSegments, visibleHotelIds);
+          onSearchComplete(usedSegments, visibleHotelIds, bounds);
         }
       }
     } else {
@@ -236,6 +243,16 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
     setPostcode(quickPostcode);
     setIsValidPostcode(true);
     searchWithPostcode(quickPostcode);
+  };
+
+  const toggleHotelExpand = (hotelId: string) => {
+    const newExpanded = new Set(expandedHotels);
+    if (newExpanded.has(hotelId)) {
+      newExpanded.delete(hotelId);
+    } else {
+      newExpanded.add(hotelId);
+    }
+    setExpandedHotels(newExpanded);
   };
 
   const handleBookNow = (hotelOption: any) => {
@@ -446,26 +463,72 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
                   <div className="other-options">
                     <h5>Other great options:</h5>
                     <div className="option-list">
-                      {searchResults.hotels.slice(1).map((opt: any, idx: number) => (
-                        <div key={idx} className="option-item">
-                          <div className="option-info">
-                            <strong>{opt.hotel.name}</strong>
-                            <span className="option-stats">
-                              {opt.totalTime} min total • £{opt.price}/night
-                              {opt.lineChanges === 0 && ' • Direct'}
-                            </span>
-                          </div>
-                          <div className="option-actions">
-                            <button
-                              className="option-book-btn"
-                              onClick={() => handleBookNow(opt)}
-                              disabled={!opt.available}
+                      {searchResults.hotels.slice(1, 5).map((opt: any, idx: number) => {
+                        const isExpanded = expandedHotels.has(opt.hotel.id);
+                        return (
+                          <div key={idx} className={`option-item ${isExpanded ? 'expanded' : ''}`}>
+                            <div 
+                              className="option-header"
+                              onClick={() => toggleHotelExpand(opt.hotel.id)}
                             >
-                              {opt.available ? 'Book' : 'Full'}
-                            </button>
+                              <div className="option-info">
+                                <strong>{opt.hotel.name}</strong>
+                                <span className="option-stats">
+                                  {opt.totalTime} min • £{opt.price}/night
+                                  {opt.lineChanges === 0 && ' • Direct'}
+                                </span>
+                              </div>
+                              <button className="expand-btn">
+                                {isExpanded ? '−' : '+'}
+                              </button>
+                            </div>
+                            
+                            {isExpanded && (
+                              <div className="option-details">
+                                <div className="journey-breakdown compact">
+                                  <div className="journey-step">
+                                    <span className="step-icon">🏨</span>
+                                    <span>{opt.hotelWalkTime} min walk to {opt.hotelStation.name}</span>
+                                  </div>
+                                  <div className="journey-step">
+                                    <span className="step-icon">🚇</span>
+                                    <span>{opt.tubeTime} min journey
+                                      {opt.lineChanges > 0 && ` (${opt.lineChanges} change${opt.lineChanges > 1 ? 's' : ''})`}
+                                    </span>
+                                  </div>
+                                  <div className="journey-step">
+                                    <span className="step-icon">🚶</span>
+                                    <span>{opt.workplaceWalkTime} min to destination</span>
+                                  </div>
+                                </div>
+                                
+                                <div className="option-actions-expanded">
+                                  <button
+                                    className="view-route-btn compact"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onSelectHotel(opt.hotel);
+                                      onShowRoute(opt.hotelStation.id, opt.workplaceStation.id);
+                                    }}
+                                  >
+                                    View Route
+                                  </button>
+                                  <button
+                                    className="book-btn compact"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleBookNow(opt);
+                                    }}
+                                    disabled={!opt.available}
+                                  >
+                                    {opt.available ? 'Book Now' : 'Sold Out'}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
