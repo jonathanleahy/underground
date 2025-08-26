@@ -1,0 +1,2 @@
+/* Import the main CSS file which includes Tailwind */
+@import '../src/index.css';

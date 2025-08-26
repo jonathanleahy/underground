@@ -1,5 +1,6 @@
 import type { Preview } from '@storybook/react-vite'
-import '../src/index.css'
+// Import Tailwind v4 CSS with CSS variables
+import './preview.css'
 
 const preview: Preview = {
   parameters: {
@@ -9,6 +10,13 @@ const preview: Preview = {
        date: /Date$/i,
       },
     },
+    docs: {
+      toc: true, // Enable table of contents
+      source: {
+        type: 'code', // Show actual code instead of dynamic
+      },
+    },
+    viewMode: 'story', // Default view mode
   },
 };
 

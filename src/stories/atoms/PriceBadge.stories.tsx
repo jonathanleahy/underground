@@ -1,74 +1,78 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { PriceBadge } from '@/components/atoms/PriceBadge';
 
-const meta = {
+const meta: Meta<typeof PriceBadge> = {
+  tags: ["autodocs"],
   title: 'Atoms/PriceBadge',
   component: PriceBadge,
   parameters: {
     layout: 'centered',
   },
-  
   argTypes: {
     price: {
       control: { type: 'number', min: 0, max: 500, step: 10 },
-      description: 'Price value to display',
     },
     size: {
-      control: 'select',
+      control: { type: 'select' },
       options: ['sm', 'md', 'lg'],
-      description: 'Size variant of the price badge',
     },
     variant: {
-      control: 'select',
+      control: { type: 'select' },
       options: ['default', 'discount', 'premium'],
-      description: 'Visual variant of the price badge',
     },
   },
-} satisfies Meta<typeof PriceBadge>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Small: Story = {
+export const Default: Story = {
   args: {
     price: 89,
-    size: 'sm',
+    size: 'md',
+    variant: 'default',
   },
 };
 
-export const Medium: Story = {
+export const Small: Story = {
   args: {
-    price: 125,
-    size: 'md',
+    price: 45,
+    size: 'sm',
+    variant: 'default',
   },
 };
 
 export const Large: Story = {
   args: {
-    price: 250,
+    price: 120,
     size: 'lg',
+    variant: 'default',
   },
 };
 
-export const BudgetPrice: Story = {
+export const Discount: Story = {
   args: {
-    price: 45,
+    price: 35,
     size: 'md',
+    variant: 'discount',
   },
 };
 
-export const PremiumPrice: Story = {
+export const Premium: Story = {
   args: {
-    price: 399,
+    price: 250,
     size: 'md',
     variant: 'premium',
   },
 };
 
-export const DiscountPrice: Story = {
-  args: {
-    price: 79,
-    size: 'md', 
-    variant: 'discount',
-  },
+// Composition example
+export const PriceBadgeGroup: Story = {
+  render: () => (
+    <div className="flex gap-4 items-center">
+      <PriceBadge price={45} variant="discount" size="sm" />
+      <PriceBadge price={89} variant="default" size="md" />
+      <PriceBadge price={150} variant="premium" size="lg" />
+    </div>
+  ),
 };
