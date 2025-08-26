@@ -610,7 +610,8 @@ export const IntegratedMapView: React.FC = () => {
                       
                       return L.divIcon({
                         html: `
-                          <div class="hotel-map-badge price-${priceCategory} ${isHighlighted ? 'highlighted' : ''} ${isTransparent ? 'transparent' : ''}">
+                          <div class="hotel-map-badge price-${priceCategory} ${isHighlighted ? 'highlighted' : ''} ${isTransparent ? 'transparent' : ''}" 
+                               style="${isHighlighted ? 'z-index: 1000 !important;' : ''}">
                             <span class="badge-price">£${price}</span>
                             ${journeyTime ? `<span class="badge-time">${journeyTime}m</span>` : ''}
                           </div>

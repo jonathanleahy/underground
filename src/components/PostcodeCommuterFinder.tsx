@@ -740,23 +740,42 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         )}
       </div>
 
-      {/* Quick Pick Postcodes */}
+      {/* Quick Picks */}
       {showQuickPicks && (
-        <div className="quick-picks">
-          <label>Popular business areas:</label>
-          <div className="quick-pick-grid">
-            {popularPostcodes.slice(0, 6).map(item => (
-              <button
-                key={item.postcode}
-                onClick={() => handleQuickPick(item.postcode)}
-                className="quick-pick-btn"
-              >
-                <strong>{item.area}</strong>
-                <span>{item.postcode}</span>
-              </button>
-            ))}
+        <>
+          <div className="quick-picks">
+            <label>Popular business areas:</label>
+            <div className="quick-pick-grid">
+              {popularPostcodes.slice(0, 6).map(item => (
+                <button
+                  key={item.postcode}
+                  onClick={() => handleQuickPick(item.postcode)}
+                  className="quick-pick-btn"
+                >
+                  <strong>{item.area}</strong>
+                  <span>{item.postcode}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+          
+          <div className="quick-picks" style={{ marginTop: '16px' }}>
+            <label>Popular destinations:</label>
+            <div className="quick-pick-grid">
+              {getPopularDestinations().slice(0, 6).map(dest => (
+                <button
+                  key={dest.query}
+                  onClick={() => handleQuickPick(dest.query)}
+                  className="quick-pick-btn destination-btn"
+                  title={dest.name}
+                >
+                  <span style={{ fontSize: '20px' }}>{dest.icon}</span>
+                  <strong style={{ fontSize: '12px' }}>{dest.name}</strong>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       {/* Loading State */}
