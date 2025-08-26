@@ -135,9 +135,20 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   // Filter results when journey time or price changes
   useEffect(() => {
     if (allSearchResults && allSearchResults.hotels) {
-      const filtered = allSearchResults.hotels.filter((hotel: any) => 
-        hotel.totalTime <= maxJourneyTime && hotel.price <= maxPrice
-      );
+      console.log('=== PRICE FILTER DEBUG ===');
+      console.log('Filtering hotels - Max Journey Time:', maxJourneyTime, 'Max Price:', maxPrice);
+      console.log('Total hotels before filter:', allSearchResults.hotels.length);
+      
+      const filtered = allSearchResults.hotels.filter((hotel: any) => {
+        const passes = hotel.totalTime <= maxJourneyTime && hotel.price <= maxPrice;
+        if (!passes && hotel.price > maxPrice) {
+          console.log(`Filtering out ${hotel.hotel.name}: price ${hotel.price} > max ${maxPrice}`);
+        }
+        return passes;
+      });
+      
+      console.log(`Filtered ${allSearchResults.hotels.length} hotels to ${filtered.length}`);
+      console.log('Filtered hotel IDs:', filtered.map((h: any) => `${h.hotel.name} (${h.hotel.id}): £${h.price}`));
       
       // Re-sort by score
       filtered.sort((a: any, b: any) => {
@@ -189,8 +200,11 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
       const allFilteredIds = new Set(filtered.map((h: any) => h.hotel.id));
       setSelectedHotels(allFilteredIds);
       
+      // ONLY update map here, not in updateMapWithSelectedHotels to avoid race conditions
       // Update map with new segments, visible hotels and proper bounds
       if (onSearchComplete && allSearchResults.location) {
+        console.log('Passing visibleHotelIds to map:', Array.from(visibleHotelIds));
+        console.log('Passing filtered results with', filtered.length, 'hotels');
         onSearchComplete(
           usedSegments, 
           visibleHotelIds, 
@@ -200,7 +214,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
             lng: allSearchResults.location.lng,
             postcode: allSearchResults.formattedPostcode || allSearchResults.postcode
           },
-          filteredResults || allSearchResults // Pass the filtered or all search results
+          { ...allSearchResults, hotels: filtered } // Pass the properly filtered results
         );
       }
     }
@@ -335,63 +349,25 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
       newSelected.add(hotelId);
     }
     setSelectedHotels(newSelected);
-    updateMapWithSelectedHotels(newSelected);
+    // Don't call updateMapWithSelectedHotels here - let the useEffect handle it
+    // updateMapWithSelectedHotels(newSelected);
   };
   
   const selectAllHotels = () => {
     if (filteredResults && filteredResults.hotels) {
       const allIds = new Set(filteredResults.hotels.map((h: any) => h.hotel.id));
       setSelectedHotels(allIds);
-      updateMapWithSelectedHotels(allIds);
+      // Don't call updateMapWithSelectedHotels here - let the useEffect handle it
     }
   };
   
   const clearAllHotels = () => {
     setSelectedHotels(new Set());
-    updateMapWithSelectedHotels(new Set());
+    // Don't call updateMapWithSelectedHotels here - let the useEffect handle it
   };
   
-  const updateMapWithSelectedHotels = (selectedIds: Set<string>) => {
-    if (!filteredResults || !filteredResults.hotels) return;
-    
-    // Show selected hotels, or all if none selected
-    const hotelData = selectedIds.size > 0 
-      ? filteredResults.hotels.filter((h: any) => selectedIds.has(h.hotel.id))
-      : filteredResults.hotels;
-    
-    // Recalculate visible hotels and bounds
-    const visibleHotelIds = new Set<string>(hotelData.map((h: any) => h.hotel.id));
-    
-    // Calculate bounds including hotels and workplace
-    const bounds: { lat: number; lng: number }[] = [];
-    
-    // Add hotel locations to bounds
-    hotelData.forEach((h: any) => {
-      bounds.push({ lat: h.hotel.lat, lng: h.hotel.lng });
-    });
-    
-    // Add workplace location to bounds
-    if (allSearchResults?.location) {
-      bounds.push({ 
-        lat: allSearchResults.location.lat, 
-        lng: allSearchResults.location.lng 
-      });
-    }
-    
-    if (onSearchComplete && allSearchResults?.location) {
-      onSearchComplete(
-        allSearchResults.usedSegments, 
-        visibleHotelIds, 
-        bounds, // Pass the calculated bounds
-        {
-          lat: allSearchResults.location.lat,
-          lng: allSearchResults.location.lng,
-          postcode: allSearchResults.formattedPostcode || allSearchResults.postcode
-        },
-        filteredResults || allSearchResults // Pass the current results
-      );
-    }
-  };
+  // Removed updateMapWithSelectedHotels to avoid race conditions
+  // All map updates now happen through the main filtering useEffect
 
   const handleBookNow = (hotelOption: any) => {
     const url = selectedDate.checkIn
@@ -527,6 +503,37 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
             </button>
           </div>
         </div>
+        
+        {/* Price Filter - Show when we have ALL search results, even if filtered to zero */}
+        {allSearchResults && allSearchResults.hotels && allSearchResults.hotels.length > 0 && (
+          <div className="price-filter">
+            <label>
+              Max price: <strong>£{maxPrice}</strong> per night
+              {maxPrice < priceRange.min && (
+                <span style={{ color: '#dc2626', marginLeft: '8px', fontSize: '12px' }}>
+                  (below minimum price)
+                </span>
+              )}
+            </label>
+            <input
+              type="range"
+              min={priceRange.min}
+              max={priceRange.max}
+              step="5"
+              value={Math.max(maxPrice, priceRange.min)} // Ensure slider doesn't go below min
+              onChange={(e) => {
+                const newValue = parseInt(e.target.value);
+                // Allow setting to any value within range
+                setMaxPrice(newValue);
+              }}
+              className="price-slider"
+            />
+            <div className="price-range-info">
+              <span>£{priceRange.min}</span>
+              <span>£{priceRange.max}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Quick Pick Postcodes */}
@@ -779,8 +786,21 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
               </>
             ) : (
               <div className="no-results">
-                <p>😕 No hotels found within {maxJourneyTime} minutes</p>
-                <p>Try increasing the journey time or entering a different postcode</p>
+                <p>😕 No hotels found within your filters</p>
+                {allSearchResults && allSearchResults.hotels && allSearchResults.hotels.length > 0 ? (
+                  <>
+                    <p>Try adjusting your filters:</p>
+                    <ul style={{ textAlign: 'left', marginTop: '8px' }}>
+                      <li>Journey time: currently {maxJourneyTime} minutes</li>
+                      <li>Max price: currently £{maxPrice} per night</li>
+                    </ul>
+                    <p style={{ marginTop: '12px', fontSize: '12px', color: '#6b7280' }}>
+                      {allSearchResults.hotels.length} hotels available before filtering
+                    </p>
+                  </>
+                ) : (
+                  <p>Try entering a different postcode</p>
+                )}
               </div>
             )}
           </div>

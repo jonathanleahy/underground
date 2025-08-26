@@ -53,6 +53,36 @@ const bestMatchIcon = new Icon({
   popupAnchor: [0, -24]
 });
 
+// Map click handler component
+function MapClickHandler({ onMapClick }: { onMapClick: () => void }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    const handleClick = (e: any) => {
+      // Only trigger if clicking on the map itself (not markers or popups)
+      const target = e.originalEvent.target;
+      const isMapBackground = 
+        target.classList.contains('leaflet-tile') ||
+        target.classList.contains('leaflet-container') ||
+        target.classList.contains('leaflet-pane') ||
+        target.classList.contains('leaflet-overlay-pane') ||
+        target.classList.contains('leaflet-zoom-animated');
+        
+      if (isMapBackground) {
+        onMapClick();
+      }
+    };
+    
+    map.on('click', handleClick);
+    
+    return () => {
+      map.off('click', handleClick);
+    };
+  }, [map, onMapClick]);
+  
+  return null;
+}
+
 // Map controller component
 function MapController({ 
   bounds,
@@ -254,6 +284,12 @@ export const IntegratedMapView: React.FC = () => {
     workLocation?: { lat: number; lng: number; postcode: string },
     searchResults?: any
   ) => {
+    console.log('=== MAP RECEIVE DEBUG ===');
+    console.log('Map received hotelIds:', hotelIds ? Array.from(hotelIds) : 'null');
+    console.log('Map received searchResults with', searchResults?.hotels?.length, 'hotels');
+    if (searchResults?.hotels) {
+      console.log('Hotels with prices:', searchResults.hotels.map((h: any) => `${h.hotel.name}: £${h.price}`));
+    }
     setVisibleHotelIds(hotelIds || null);
     
     // Store search results for popup data - this is critical for route display
@@ -359,17 +395,69 @@ export const IntegratedMapView: React.FC = () => {
           </button>
         )}
         
+        {/* Price Legend */}
+        <div className="price-legend" style={{
+          position: 'absolute',
+          top: '70px',
+          right: '20px',
+          zIndex: 1000,
+          background: 'white',
+          padding: '10px 14px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          fontSize: '12px'
+        }}>
+          <div style={{ fontWeight: 600, marginBottom: '6px' }}>Price Range:</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ width: '12px', height: '12px', background: '#22c55e', borderRadius: '2px' }}></div>
+              <span>Budget</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ width: '12px', height: '12px', background: '#3b82f6', borderRadius: '2px' }}></div>
+              <span>Mid-range</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ width: '12px', height: '12px', background: '#a855f7', borderRadius: '2px' }}></div>
+              <span>Premium</span>
+            </div>
+          </div>
+        </div>
+        
         {/* Reset Zoom Button - always visible */}
         <button 
           className="reset-zoom-btn"
           onClick={() => {
-            // Reset to default London view
-            const defaultBounds = [
-              { lat: 51.5074, lng: -0.1278 }, // Central London
-              { lat: 51.6, lng: -0.3 }, // Northwest
-              { lat: 51.4, lng: 0.1 }, // Southeast
-            ];
-            setMapBounds(defaultBounds);
+            // Calculate bounds from currently visible hotels and workplace
+            const bounds: { lat: number; lng: number }[] = [];
+            
+            // Add workplace location if available
+            if (workplaceLocation) {
+              bounds.push(workplaceLocation);
+            }
+            
+            // Add all currently visible hotels
+            if (visibleHotelIds) {
+              premierInnData.hotels
+                .filter(hotel => visibleHotelIds.has(hotel.id))
+                .forEach(hotel => {
+                  bounds.push({ lat: hotel.lat, lng: hotel.lng });
+                });
+            }
+            
+            // If we have bounds, use them; otherwise fall back to default
+            if (bounds.length > 0) {
+              setMapBounds(bounds);
+            } else {
+              // Fallback to default London view
+              const defaultBounds = [
+                { lat: 51.5074, lng: -0.1278 }, // Central London
+                { lat: 51.6, lng: -0.3 }, // Northwest
+                { lat: 51.4, lng: 0.1 }, // Southeast
+              ];
+              setMapBounds(defaultBounds);
+            }
+            
             setHasZoomed(false);
             setPreviousBounds(null);
           }}
@@ -455,7 +543,18 @@ export const IntegratedMapView: React.FC = () => {
           
           {/* Draw hotels */}
           {premierInnData.hotels
-            .filter(hotel => !visibleHotelIds || visibleHotelIds.has(hotel.id))
+            .filter(hotel => {
+              const isVisible = !visibleHotelIds || visibleHotelIds.has(hotel.id);
+              if (visibleHotelIds && !isVisible) {
+                console.log(`Hotel ${hotel.name} (${hotel.id}) filtered out - not in visibleHotelIds`);
+              } else if (visibleHotelIds && isVisible) {
+                const hotelData = allSearchResults?.hotels?.find((h: any) => h.hotel.id === hotel.id);
+                if (hotelData) {
+                  console.log(`Showing hotel ${hotel.name} (${hotel.id}) with price £${hotelData.price}`);
+                }
+              }
+              return isVisible;
+            })
             .map((hotel, index) => {
               const position: LatLngExpression = [hotel.lat, hotel.lng];
               const isHighlighted = highlightedHotel === hotel.id;
@@ -486,9 +585,32 @@ export const IntegratedMapView: React.FC = () => {
                       // Add transparency when another hotel is highlighted
                       const isTransparent = highlightedHotel && highlightedHotel !== hotel.id;
                       
+                      // Calculate price category based on all visible hotels
+                      let priceCategory = 'mid';
+                      if (visibleHotelIds && allSearchResults?.hotels) {
+                        const visiblePrices = allSearchResults.hotels
+                          .filter((h: any) => visibleHotelIds.has(h.hotel.id))
+                          .map((h: any) => h.price)
+                          .sort((a: number, b: number) => a - b);
+                        
+                        if (visiblePrices.length > 0) {
+                          const minPrice = visiblePrices[0];
+                          const maxPrice = visiblePrices[visiblePrices.length - 1];
+                          const range = maxPrice - minPrice;
+                          const lowThreshold = minPrice + range * 0.33;
+                          const highThreshold = minPrice + range * 0.66;
+                          
+                          if (price <= lowThreshold) {
+                            priceCategory = 'low';
+                          } else if (price >= highThreshold) {
+                            priceCategory = 'high';
+                          }
+                        }
+                      }
+                      
                       return L.divIcon({
                         html: `
-                          <div class="hotel-map-badge ${isHighlighted ? 'highlighted' : ''} ${isTransparent ? 'transparent' : ''}">
+                          <div class="hotel-map-badge price-${priceCategory} ${isHighlighted ? 'highlighted' : ''} ${isTransparent ? 'transparent' : ''}">
                             <span class="badge-price">£${price}</span>
                             ${journeyTime ? `<span class="badge-time">${journeyTime}m</span>` : ''}
                           </div>

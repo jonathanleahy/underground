@@ -285,15 +285,42 @@
   gap: 6px;
 }
 
+/* Price-based color coding */
+.hotel-map-badge.price-low {
+  background: #22c55e; /* Bright green for budget-friendly */
+  border-color: #16a34a;
+}
+
+.hotel-map-badge.price-low:hover {
+  background: #16a34a;
+}
+
+.hotel-map-badge.price-mid {
+  background: #3b82f6; /* Blue for mid-range */
+  border-color: #2563eb;
+}
+
+.hotel-map-badge.price-mid:hover {
+  background: #2563eb;
+}
+
+.hotel-map-badge.price-high {
+  background: #a855f7; /* Purple for premium */
+  border-color: #9333ea;
+}
+
+.hotel-map-badge.price-high:hover {
+  background: #9333ea;
+}
+
 .hotel-map-badge:hover {
   transform: translate(-50%, -50%) scale(1.05);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  background: #059669;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
 .hotel-map-badge.highlighted {
-  background: #fbbf24;
-  border-color: #f59e0b;
+  background: #fbbf24 !important;
+  border-color: #f59e0b !important;
   z-index: 10;
 }
 
