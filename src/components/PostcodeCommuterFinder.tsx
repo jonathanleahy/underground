@@ -39,7 +39,8 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   const [searchResults, setSearchResults] = useState<any>(null);
   const [selectedStation, setSelectedStation] = useState<string>('');
   const [maxJourneyTime, setMaxJourneyTime] = useState(30);
-  const [maxPrice, setMaxPrice] = useState(200); // Max price per night
+  const [minPrice, setMinPrice] = useState(0); // Min price filter
+  const [maxPrice, setMaxPrice] = useState(200); // Max price filter
   const [priceRange, setPriceRange] = useState({ min: 0, max: 200 }); // Actual price range from results
   const [showQuickPicks, setShowQuickPicks] = useState(true);
   const [allSearchResults, setAllSearchResults] = useState<any>(null); // Store all results
@@ -136,13 +137,13 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   useEffect(() => {
     if (allSearchResults && allSearchResults.hotels) {
       console.log('=== PRICE FILTER DEBUG ===');
-      console.log('Filtering hotels - Max Journey Time:', maxJourneyTime, 'Max Price:', maxPrice);
+      console.log('Filtering hotels - Max Journey Time:', maxJourneyTime, 'Price Range:', minPrice, '-', maxPrice);
       console.log('Total hotels before filter:', allSearchResults.hotels.length);
       
       const filtered = allSearchResults.hotels.filter((hotel: any) => {
-        const passes = hotel.totalTime <= maxJourneyTime && hotel.price <= maxPrice;
-        if (!passes && hotel.price > maxPrice) {
-          console.log(`Filtering out ${hotel.hotel.name}: price ${hotel.price} > max ${maxPrice}`);
+        const passes = hotel.totalTime <= maxJourneyTime && hotel.price >= minPrice && hotel.price <= maxPrice;
+        if (!passes && (hotel.price < minPrice || hotel.price > maxPrice)) {
+          console.log(`Filtering out ${hotel.hotel.name}: price ${hotel.price} not in range ${minPrice}-${maxPrice}`);
         }
         return passes;
       });
@@ -218,7 +219,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         );
       }
     }
-  }, [maxJourneyTime, maxPrice, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
+  }, [maxJourneyTime, minPrice, maxPrice, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
 
   const searchWithPostcode = async (searchPostcode: string) => {
     if (!isValidUKPostcode(searchPostcode)) {
@@ -270,9 +271,10 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         if (hotelResults.length > 0) {
           const prices = hotelResults.map((h: any) => h.price);
           const minPrice = Math.min(...prices);
-          const maxPrice = Math.max(...prices);
-          setPriceRange({ min: minPrice, max: maxPrice });
-          setMaxPrice(maxPrice); // Set initial filter to max price
+          const maxPriceVal = Math.max(...prices);
+          setPriceRange({ min: minPrice, max: maxPriceVal });
+          setMinPrice(minPrice); // Set initial min filter
+          setMaxPrice(maxPriceVal); // Set initial max filter
         }
         
         // Store all results
@@ -508,29 +510,71 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         {allSearchResults && allSearchResults.hotels && allSearchResults.hotels.length > 0 && (
           <div className="price-filter">
             <label>
-              Max price: <strong>£{maxPrice}</strong> per night
-              {maxPrice < priceRange.min && (
-                <span style={{ color: '#dc2626', marginLeft: '8px', fontSize: '12px' }}>
-                  (below minimum price)
-                </span>
-              )}
+              Price range: <strong>£{minPrice} - £{maxPrice}</strong> per night
             </label>
-            <input
-              type="range"
-              min={priceRange.min}
-              max={priceRange.max}
-              step="5"
-              value={Math.max(maxPrice, priceRange.min)} // Ensure slider doesn't go below min
-              onChange={(e) => {
-                const newValue = parseInt(e.target.value);
-                // Allow setting to any value within range
-                setMaxPrice(newValue);
-              }}
-              className="price-slider"
-            />
-            <div className="price-range-info">
-              <span>£{priceRange.min}</span>
-              <span>£{priceRange.max}</span>
+            <div className="price-slider-container">
+              <div className="dual-slider-track" style={{
+                background: `linear-gradient(to right, 
+                  #22c55e 0%, 
+                  #22c55e 33%, 
+                  #3b82f6 33%, 
+                  #3b82f6 66%, 
+                  #a855f7 66%, 
+                  #a855f7 100%)`,
+                height: '6px',
+                borderRadius: '3px',
+                position: 'relative',
+                marginBottom: '8px'
+              }}>
+                <div className="selected-range" style={{
+                  position: 'absolute',
+                  left: `${((minPrice - priceRange.min) / (priceRange.max - priceRange.min)) * 100}%`,
+                  right: `${((priceRange.max - maxPrice) / (priceRange.max - priceRange.min)) * 100}%`,
+                  height: '100%',
+                  background: 'rgba(0,0,0,0.2)',
+                  borderRadius: '3px'
+                }}></div>
+              </div>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="range"
+                  min={priceRange.min}
+                  max={priceRange.max}
+                  step="5"
+                  value={minPrice}
+                  onChange={(e) => {
+                    const newValue = parseInt(e.target.value);
+                    if (newValue <= maxPrice) {
+                      setMinPrice(newValue);
+                    }
+                  }}
+                  className="price-slider price-slider-min"
+                  style={{ position: 'absolute', pointerEvents: 'none' }}
+                />
+                <input
+                  type="range"
+                  min={priceRange.min}
+                  max={priceRange.max}
+                  step="5"
+                  value={maxPrice}
+                  onChange={(e) => {
+                    const newValue = parseInt(e.target.value);
+                    if (newValue >= minPrice) {
+                      setMaxPrice(newValue);
+                    }
+                  }}
+                  className="price-slider price-slider-max"
+                />
+              </div>
+              <div className="price-range-info">
+                <span className="price-min">£{priceRange.min}</span>
+                <span className="price-max">£{priceRange.max}</span>
+              </div>
+              <div className="price-segments">
+                <div className="segment budget">Budget</div>
+                <div className="segment mid">Mid</div>
+                <div className="segment premium">Premium</div>
+              </div>
             </div>
           </div>
         )}
