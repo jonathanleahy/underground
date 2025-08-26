@@ -145,78 +145,151 @@ function getDetailedTrackGeometry(lineId: string, fromStation: Station, toStatio
     normalizedLine.replace(' ', ';')
   ];
   
-  for (const tryKey of keysToTry) {
-    for (const key in trackData) {
-      if (key.toLowerCase().includes(tryKey) || tryKey.includes(key.toLowerCase())) {
-        const lineSegments = trackData[key];
+  // Collect all possible track segments for this line
+  const allLineSegments: any[][] = [];
+  
+  for (const key in trackData) {
+    // Check if this key matches our line
+    if (key.toLowerCase().includes(normalizedLine) || 
+        normalizedLine.includes(key.toLowerCase()) ||
+        keysToTry.some(tryKey => key.toLowerCase().includes(tryKey))) {
+      const segments = trackData[key];
+      if (Array.isArray(segments)) {
+        allLineSegments.push(...segments);
+      }
+    }
+  }
+  
+  if (allLineSegments.length === 0) {
+    return [];
+  }
+  
+  // Try to find segments that connect our stations
+  let bestPath: number[][] = [];
+  let bestScore = Infinity;
+  
+  // First, try to find a single segment that connects the stations
+  for (const segment of allLineSegments) {
+    if (Array.isArray(segment) && segment.length > 1) {
+      const firstPoint = segment[0];
+      const lastPoint = segment[segment.length - 1];
+      
+      if (firstPoint && lastPoint) {
+        // Calculate distances to check if this segment connects our stations
+        const startDist = Math.sqrt(
+          Math.pow(firstPoint[0] - fromStation.lat, 2) + 
+          Math.pow(firstPoint[1] - fromStation.lng, 2)
+        );
+        const endDist = Math.sqrt(
+          Math.pow(lastPoint[0] - toStation.lat, 2) + 
+          Math.pow(lastPoint[1] - toStation.lng, 2)
+        );
         
-        if (Array.isArray(lineSegments) && lineSegments.length > 0) {
-          // Find the best matching segment based on proximity to stations
-          let bestSegment: any[] = [];
-          let bestScore = Infinity;
+        // Also check reversed direction
+        const startDistRev = Math.sqrt(
+          Math.pow(firstPoint[0] - toStation.lat, 2) + 
+          Math.pow(firstPoint[1] - toStation.lng, 2)
+        );
+        const endDistRev = Math.sqrt(
+          Math.pow(lastPoint[0] - fromStation.lat, 2) + 
+          Math.pow(lastPoint[1] - fromStation.lng, 2)
+        );
+        
+        const forwardScore = startDist + endDist;
+        const reverseScore = startDistRev + endDistRev;
+        const score = Math.min(forwardScore, reverseScore);
+        
+        // If this segment is close to our stations, use it
+        if (score < bestScore && score < 0.02) { // Threshold for proximity
+          bestScore = score;
+          bestPath = segment;
           
-          for (const segment of lineSegments) {
-            if (Array.isArray(segment) && segment.length > 1) {
-              // Check proximity of segment endpoints to our stations
-              const firstPoint = segment[0];
-              const lastPoint = segment[segment.length - 1];
-              
-              if (firstPoint && lastPoint) {
-                // Calculate distances to check if this segment connects our stations
-                const startDist = Math.sqrt(
-                  Math.pow(firstPoint[0] - fromStation.lat, 2) + 
-                  Math.pow(firstPoint[1] - fromStation.lng, 2)
-                );
-                const endDist = Math.sqrt(
-                  Math.pow(lastPoint[0] - toStation.lat, 2) + 
-                  Math.pow(lastPoint[1] - toStation.lng, 2)
-                );
-                
-                // Also check reversed direction
-                const startDistRev = Math.sqrt(
-                  Math.pow(firstPoint[0] - toStation.lat, 2) + 
-                  Math.pow(firstPoint[1] - toStation.lng, 2)
-                );
-                const endDistRev = Math.sqrt(
-                  Math.pow(lastPoint[0] - fromStation.lat, 2) + 
-                  Math.pow(lastPoint[1] - fromStation.lng, 2)
-                );
-                
-                const score = Math.min(startDist + endDist, startDistRev + endDistRev);
-                
-                // If this segment is close to our stations, use it
-                if (score < bestScore && score < 0.02) { // Threshold for proximity
-                  bestScore = score;
-                  bestSegment = segment;
-                }
-              }
-            }
-          }
-          
-          if (bestSegment.length > 0) {
-            // Check if we need to reverse the segment
-            const firstPoint = bestSegment[0];
-            const lastPoint = bestSegment[bestSegment.length - 1];
-            
-            const forwardDist = Math.sqrt(
-              Math.pow(firstPoint[0] - fromStation.lat, 2) + 
-              Math.pow(firstPoint[1] - fromStation.lng, 2)
-            );
-            const reverseDist = Math.sqrt(
-              Math.pow(lastPoint[0] - fromStation.lat, 2) + 
-              Math.pow(lastPoint[1] - fromStation.lng, 2)
-            );
-            
-            if (reverseDist < forwardDist) {
-              bestSegment = bestSegment.slice().reverse();
-            }
-            
-            return bestSegment.map((coord: number[]) => 
-              [coord[0], coord[1]] as LatLngExpression);
+          // Reverse if needed
+          if (reverseScore < forwardScore) {
+            bestPath = segment.slice().reverse();
           }
         }
       }
     }
+  }
+  
+  // If no single segment found, try to chain segments together
+  if (bestPath.length === 0) {
+    // Find segments that start near fromStation
+    const startSegments = allLineSegments.filter(segment => {
+      if (segment.length > 0) {
+        const firstPoint = segment[0];
+        const lastPoint = segment[segment.length - 1];
+        const distStart = Math.sqrt(
+          Math.pow(firstPoint[0] - fromStation.lat, 2) + 
+          Math.pow(firstPoint[1] - fromStation.lng, 2)
+        );
+        const distEnd = Math.sqrt(
+          Math.pow(lastPoint[0] - fromStation.lat, 2) + 
+          Math.pow(lastPoint[1] - fromStation.lng, 2)
+        );
+        return Math.min(distStart, distEnd) < 0.01;
+      }
+      return false;
+    });
+    
+    // Find segments that end near toStation
+    const endSegments = allLineSegments.filter(segment => {
+      if (segment.length > 0) {
+        const firstPoint = segment[0];
+        const lastPoint = segment[segment.length - 1];
+        const distStart = Math.sqrt(
+          Math.pow(firstPoint[0] - toStation.lat, 2) + 
+          Math.pow(firstPoint[1] - toStation.lng, 2)
+        );
+        const distEnd = Math.sqrt(
+          Math.pow(lastPoint[0] - toStation.lat, 2) + 
+          Math.pow(lastPoint[1] - toStation.lng, 2)
+        );
+        return Math.min(distStart, distEnd) < 0.01;
+      }
+      return false;
+    });
+    
+    // If we have both start and end segments, combine them
+    if (startSegments.length > 0 && endSegments.length > 0) {
+      const combinedPath: number[][] = [];
+      
+      // Add the start segment
+      const startSeg = startSegments[0];
+      const startFirstDist = Math.sqrt(
+        Math.pow(startSeg[0][0] - fromStation.lat, 2) + 
+        Math.pow(startSeg[0][1] - fromStation.lng, 2)
+      );
+      if (startFirstDist > 0.01) {
+        combinedPath.push(...startSeg.slice().reverse());
+      } else {
+        combinedPath.push(...startSeg);
+      }
+      
+      // Add the end segment if different
+      if (endSegments[0] !== startSegments[0]) {
+        const endSeg = endSegments[0];
+        const endLastDist = Math.sqrt(
+          Math.pow(endSeg[endSeg.length - 1][0] - toStation.lat, 2) + 
+          Math.pow(endSeg[endSeg.length - 1][1] - toStation.lng, 2)
+        );
+        if (endLastDist > 0.01) {
+          combinedPath.push(...endSeg.slice().reverse());
+        } else {
+          combinedPath.push(...endSeg);
+        }
+      }
+      
+      if (combinedPath.length > 0) {
+        bestPath = combinedPath;
+      }
+    }
+  }
+  
+  if (bestPath.length > 0) {
+    return bestPath.map((coord: number[]) => 
+      [coord[0], coord[1]] as LatLngExpression);
   }
   
   return [];
