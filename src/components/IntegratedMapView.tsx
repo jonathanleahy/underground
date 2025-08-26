@@ -132,6 +132,13 @@ function getDetailedTrackGeometry(lineId: string, fromStation: Station, toStatio
   // Try to find track geometry for this line
   const trackData = (trackGeometry as any).trackGeometry;
   
+  // Debug logging for High Barnet issue
+  if (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet') ||
+      fromStation.name.includes('Whetstone') || toStation.name.includes('Whetstone')) {
+    console.log(`Looking for track between ${fromStation.name} and ${toStation.name}`);
+    console.log(`Station coords: from(${fromStation.lat}, ${fromStation.lng}) to(${toStation.lat}, ${toStation.lng})`);
+  }
+  
   // Normalize line name for matching
   const normalizedLine = lineId.toLowerCase().replace('-', ' ');
   
@@ -156,6 +163,22 @@ function getDetailedTrackGeometry(lineId: string, fromStation: Station, toStatio
       const segments = trackData[key];
       if (Array.isArray(segments)) {
         allLineSegments.push(...segments);
+        
+        // Debug for High Barnet
+        if ((fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet')) && 
+            key.toLowerCase().includes('northern')) {
+          console.log(`Found ${segments.length} segments for key: ${key}`);
+          // Check if any segment is near High Barnet
+          segments.forEach((seg: any[], idx: number) => {
+            if (seg.length > 0) {
+              const first = seg[0];
+              const last = seg[seg.length - 1];
+              if ((Math.abs(first[0] - 51.650) < 0.01) || (Math.abs(last[0] - 51.650) < 0.01)) {
+                console.log(`Segment ${idx} near High Barnet: first(${first[0]}, ${first[1]}) last(${last[0]}, ${last[1]})`);
+              }
+            }
+          });
+        }
       }
     }
   }
@@ -200,9 +223,16 @@ function getDetailedTrackGeometry(lineId: string, fromStation: Station, toStatio
         const score = Math.min(forwardScore, reverseScore);
         
         // If this segment is close to our stations, use it
-        if (score < bestScore && score < 0.02) { // Threshold for proximity
+        // Increased threshold for High Barnet area which might have less precise data
+        const threshold = (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet') ||
+                          fromStation.name.includes('Whetstone') || toStation.name.includes('Whetstone')) ? 0.05 : 0.02;
+        if (score < bestScore && score < threshold) { // Threshold for proximity
           bestScore = score;
           bestPath = segment;
+          
+          if (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet')) {
+            console.log(`Found segment with score ${score} for High Barnet route`);
+          }
           
           // Reverse if needed
           if (reverseScore < forwardScore) {
@@ -228,7 +258,8 @@ function getDetailedTrackGeometry(lineId: string, fromStation: Station, toStatio
           Math.pow(lastPoint[0] - fromStation.lat, 2) + 
           Math.pow(lastPoint[1] - fromStation.lng, 2)
         );
-        return Math.min(distStart, distEnd) < 0.01;
+        const threshold = (fromStation.name.includes('High Barnet') || fromStation.name.includes('Whetstone')) ? 0.02 : 0.01;
+        return Math.min(distStart, distEnd) < threshold;
       }
       return false;
     });
@@ -246,7 +277,8 @@ function getDetailedTrackGeometry(lineId: string, fromStation: Station, toStatio
           Math.pow(lastPoint[0] - toStation.lat, 2) + 
           Math.pow(lastPoint[1] - toStation.lng, 2)
         );
-        return Math.min(distStart, distEnd) < 0.01;
+        const threshold = (fromStation.name.includes('High Barnet') || fromStation.name.includes('Whetstone')) ? 0.02 : 0.01;
+        return Math.min(distStart, distEnd) < threshold;
       }
       return false;
     });
@@ -681,8 +713,17 @@ export const IntegratedMapView: React.FC = () => {
                     
                     if (detailedGeometry.length > 0) {
                       detailedPaths.push(detailedGeometry);
+                      
+                      // Debug log for High Barnet
+                      if (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet')) {
+                        console.log(`Using detailed geometry with ${detailedGeometry.length} points for ${fromStation.name} to ${toStation.name}`);
+                      }
                     } else {
                       // Fallback to direct line between stations
+                      if (fromStation.name.includes('High Barnet') || toStation.name.includes('High Barnet') ||
+                          fromStation.name.includes('Whetstone') || toStation.name.includes('Whetstone')) {
+                        console.log(`No geometry found, using straight line for ${fromStation.name} to ${toStation.name}`);
+                      }
                       detailedPaths.push([
                         [fromStation.lat, fromStation.lng] as LatLngExpression,
                         [toStation.lat, toStation.lng] as LatLngExpression
