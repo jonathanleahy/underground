@@ -7,7 +7,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  
   argTypes: {
     price: {
       control: { type: 'number', min: 0, max: 500, step: 10 },

@@ -7,7 +7,7 @@ const meta = {
   parameters: {
     layout: 'padded',
   },
-  tags: ['autodocs'],
+  
   argTypes: {
     placeholder: { control: 'text' },
     onSearch: { action: 'searched' },
