@@ -11,10 +11,12 @@ import { DatePicker } from './DatePicker';
 import { PriceLabel } from './PriceLabel';
 import { RoutePlanner } from './RoutePlanner';
 import { PriceFilter } from './PriceFilter';
-import { Route as JourneyRoute } from '../services/routingService';
+import { CommuterHotelFinder } from './CommuterHotelFinder';
+import { Route as JourneyRoute, RoutingService } from '../services/routingService';
 import { smoothLinePath, getLineCurveParams } from '../utils/bezierCurves';
 import { fetchMultipleHotelPricing } from '../services/premier-inn-api';
 import { getBookingUrl } from '../data/premier-inn-urls';
+import { isNearAnyStation, metersToWalkingMinutes, calculateDistance } from '../utils/distance';
 import 'leaflet/dist/leaflet.css';
 import './UndergroundMapOverlay.css';
 
@@ -100,6 +102,7 @@ export const UndergroundMapOverlay: React.FC = () => {
   const [showRoutePlanner, setShowRoutePlanner] = useState(true); // Show by default
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
   const [actualPriceRange, setActualPriceRange] = useState<[number, number]>([0, 500]);
+  const [showCommuterFinder, setShowCommuterFinder] = useState(false);
 
   const center: LatLngExpression = [
     (typedData.bounds.north + typedData.bounds.south) / 2,
@@ -179,6 +182,14 @@ export const UndergroundMapOverlay: React.FC = () => {
     // TODO: Highlight route on map
   };
   
+  const handleCommuterShowRoute = (fromStation: string, toStation: string) => {
+    const routingService = new RoutingService();
+    const route = routingService.findShortestRoute(fromStation, toStation);
+    if (route) {
+      setCurrentRoute(route);
+    }
+  };
+  
   const handleStationHighlightFromRoute = (stationId: string) => {
     const station = typedData.stations.find(s => s.id === stationId);
     if (station) {
@@ -198,6 +209,54 @@ export const UndergroundMapOverlay: React.FC = () => {
       return false; // Hide sold out hotels
     }
     return pricing.price >= priceRange[0] && pricing.price <= priceRange[1];
+  };
+  
+  const isHotelNearRoute = (hotel: any): boolean => {
+    // If no route is selected, show all hotels
+    if (!currentRoute || currentRoute.segments.length === 0) {
+      return true;
+    }
+    
+    // Get all station coordinates from the route
+    const routeStations: Array<{ lat: number; lng: number }> = [];
+    currentRoute.segments.forEach(segment => {
+      segment.stationDetails.forEach(station => {
+        if (station) {
+          routeStations.push({ lat: station.lat, lng: station.lng });
+        }
+      });
+    });
+    
+    // Check if hotel is within walking distance (800m = ~10 min walk) of any route station
+    return isNearAnyStation(hotel.lat, hotel.lng, routeStations, 800);
+  };
+  
+  const getNearestRouteStation = (hotel: any): { distance: number; minutes: number } | null => {
+    if (!currentRoute || currentRoute.segments.length === 0) {
+      return null;
+    }
+    
+    const routeStations: Array<{ lat: number; lng: number }> = [];
+    currentRoute.segments.forEach(segment => {
+      segment.stationDetails.forEach(station => {
+        if (station) {
+          routeStations.push({ lat: station.lat, lng: station.lng });
+        }
+      });
+    });
+    
+    let minDistance = Infinity;
+    routeStations.forEach(station => {
+      const distance = calculateDistance(hotel.lat, hotel.lng, station.lat, station.lng);
+      if (distance < minDistance) {
+        minDistance = distance;
+      }
+    });
+    
+    return {
+      distance: minDistance,
+      minutes: metersToWalkingMinutes(minDistance)
+    };
   };
   
   const handleSearchPrices = async () => {
@@ -302,6 +361,42 @@ export const UndergroundMapOverlay: React.FC = () => {
             filteredCount={premierInnData.hotels.filter(h => isHotelInPriceRange(h.id)).length}
           />
         )}
+        
+        {/* Commuter Hotel Finder Section */}
+        <div className="control-section">
+          <button
+            onClick={() => setShowCommuterFinder(!showCommuterFinder)}
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: showCommuterFinder 
+                ? 'linear-gradient(135deg, #059669, #10B981)' 
+                : 'linear-gradient(135deg, #10B981, #059669)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: showCommuterFinder ? '12px' : '0'
+            }}
+          >
+            {showCommuterFinder ? '✕ Close Commuter Finder' : '🚇 Open Commuter Hotel Finder'}
+          </button>
+          
+          {showCommuterFinder && (
+            <CommuterHotelFinder
+              stations={typedData.stations}
+              hotels={premierInnData.hotels}
+              hotelPricing={hotelPricing}
+              onSelectHotel={(hotel) => {
+                setHighlightedItem({ id: hotel.id, type: 'hotel' });
+                setFocusLocation({ lat: hotel.lat, lng: hotel.lng });
+              }}
+              onShowRoute={handleCommuterShowRoute}
+            />
+          )}
+        </div>
         
         <div className="control-section">
           <h3>London Underground Lines</h3>
@@ -596,11 +691,15 @@ export const UndergroundMapOverlay: React.FC = () => {
           const position: LatLngExpression = [hotel.lat, hotel.lng];
           const isHighlighted = highlightedItem?.type === 'hotel' && highlightedItem.id === hotel.id;
           const inPriceRange = hotelPricing.size === 0 || isHotelInPriceRange(hotel.id);
+          const nearRoute = isHotelNearRoute(hotel);
+          const walkingInfo = getNearestRouteStation(hotel);
           
-          // Calculate opacity based on price filter and availability
+          // Calculate opacity based on price filter, route proximity, and availability
           let opacity = 0.8;
           if (!inPriceRange) {
             opacity = 0.2; // Very transparent if outside price range or sold out
+          } else if (!nearRoute) {
+            opacity = 0.1; // Almost invisible if not near route
           } else if (isHighlighted) {
             opacity = 1;
           }
@@ -619,6 +718,21 @@ export const UndergroundMapOverlay: React.FC = () => {
                   <p><strong>Nearest Tube:</strong> {hotel.nearestTube}</p>
                   {hotel.distanceToTube && (
                     <p><strong>Distance:</strong> {hotel.distanceToTube}</p>
+                  )}
+                  
+                  {/* Show walking distance from route if route is selected */}
+                  {walkingInfo && walkingInfo.minutes <= 10 && (
+                    <div style={{
+                      background: 'linear-gradient(135deg, #10B981, #059669)',
+                      color: 'white',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      marginTop: '8px',
+                      fontSize: '13px',
+                      fontWeight: '600'
+                    }}>
+                      🚶 {walkingInfo.minutes} min walk from your route
+                    </div>
                   )}
                   
                   {hotelPricing.has(hotel.id) && (
@@ -675,8 +789,8 @@ export const UndergroundMapOverlay: React.FC = () => {
               </Popup>
             </Marker>
             
-            {/* Show price label on map if enabled and in price range */}
-            {showPricesOnMap && hotelPricing.has(hotel.id) && inPriceRange && (
+            {/* Show price label on map if enabled, in price range, and near route */}
+            {showPricesOnMap && hotelPricing.has(hotel.id) && inPriceRange && nearRoute && (
               <PriceLabel
                 position={[hotel.lat, hotel.lng]}
                 price={hotelPricing.get(hotel.id).price}
