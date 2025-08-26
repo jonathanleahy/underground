@@ -127,6 +127,101 @@ function MapController({
   return null;
 }
 
+// Helper function to get detailed track geometry between two stations
+function getDetailedTrackGeometry(lineId: string, fromStation: Station, toStation: Station): LatLngExpression[] {
+  // Try to find track geometry for this line
+  const trackData = (trackGeometry as any).trackGeometry;
+  
+  // Normalize line name for matching
+  const normalizedLine = lineId.toLowerCase().replace('-', ' ');
+  
+  // Look for track data with various key formats
+  const keysToTry = [
+    normalizedLine,
+    `${normalizedLine}`,
+    `circle;${normalizedLine}`, // Some lines are combined
+    `${normalizedLine};circle`,
+    normalizedLine.replace(' & ', ';'),
+    normalizedLine.replace(' ', ';')
+  ];
+  
+  for (const tryKey of keysToTry) {
+    for (const key in trackData) {
+      if (key.toLowerCase().includes(tryKey) || tryKey.includes(key.toLowerCase())) {
+        const lineSegments = trackData[key];
+        
+        if (Array.isArray(lineSegments) && lineSegments.length > 0) {
+          // Find the best matching segment based on proximity to stations
+          let bestSegment: any[] = [];
+          let bestScore = Infinity;
+          
+          for (const segment of lineSegments) {
+            if (Array.isArray(segment) && segment.length > 1) {
+              // Check proximity of segment endpoints to our stations
+              const firstPoint = segment[0];
+              const lastPoint = segment[segment.length - 1];
+              
+              if (firstPoint && lastPoint) {
+                // Calculate distances to check if this segment connects our stations
+                const startDist = Math.sqrt(
+                  Math.pow(firstPoint[0] - fromStation.lat, 2) + 
+                  Math.pow(firstPoint[1] - fromStation.lng, 2)
+                );
+                const endDist = Math.sqrt(
+                  Math.pow(lastPoint[0] - toStation.lat, 2) + 
+                  Math.pow(lastPoint[1] - toStation.lng, 2)
+                );
+                
+                // Also check reversed direction
+                const startDistRev = Math.sqrt(
+                  Math.pow(firstPoint[0] - toStation.lat, 2) + 
+                  Math.pow(firstPoint[1] - toStation.lng, 2)
+                );
+                const endDistRev = Math.sqrt(
+                  Math.pow(lastPoint[0] - fromStation.lat, 2) + 
+                  Math.pow(lastPoint[1] - fromStation.lng, 2)
+                );
+                
+                const score = Math.min(startDist + endDist, startDistRev + endDistRev);
+                
+                // If this segment is close to our stations, use it
+                if (score < bestScore && score < 0.02) { // Threshold for proximity
+                  bestScore = score;
+                  bestSegment = segment;
+                }
+              }
+            }
+          }
+          
+          if (bestSegment.length > 0) {
+            // Check if we need to reverse the segment
+            const firstPoint = bestSegment[0];
+            const lastPoint = bestSegment[bestSegment.length - 1];
+            
+            const forwardDist = Math.sqrt(
+              Math.pow(firstPoint[0] - fromStation.lat, 2) + 
+              Math.pow(firstPoint[1] - fromStation.lng, 2)
+            );
+            const reverseDist = Math.sqrt(
+              Math.pow(lastPoint[0] - fromStation.lat, 2) + 
+              Math.pow(lastPoint[1] - fromStation.lng, 2)
+            );
+            
+            if (reverseDist < forwardDist) {
+              bestSegment = bestSegment.slice().reverse();
+            }
+            
+            return bestSegment.map((coord: number[]) => 
+              [coord[0], coord[1]] as LatLngExpression);
+          }
+        }
+      }
+    }
+  }
+  
+  return [];
+}
+
 // Helper function to get line color
 function getLineColor(lineId: string): string {
   const lineColors: { [key: string]: string } = {
@@ -487,7 +582,7 @@ export const IntegratedMapView: React.FC = () => {
           
           <MapClickHandler onMapClick={handleMapClick} />
           
-          {/* Draw tube lines - only connect consecutive stations on the route */}
+          {/* Draw tube lines with detailed geometry when available */}
           {currentRoute && currentRoute.segments.map((segment, index) => {
                 if (!segment.stationDetails || segment.stationDetails.length < 2) {
                   return null;
@@ -496,24 +591,44 @@ export const IntegratedMapView: React.FC = () => {
                 const lineId = segment.line;
                 const lineColor = getLineColor(lineId);
                 
-                // Draw direct lines between consecutive stations in the route
-                const pathPoints: LatLngExpression[] = segment.stationDetails
-                  .filter(s => s && typeof s.lat === 'number' && typeof s.lng === 'number' && !isNaN(s.lat) && !isNaN(s.lng))
-                  .map(station => [station.lat, station.lng] as LatLngExpression);
+                // Try to get detailed track geometry for each station pair
+                const detailedPaths: LatLngExpression[][] = [];
                 
-                if (pathPoints.length < 2) {
-                  return null;
+                for (let i = 0; i < segment.stationDetails.length - 1; i++) {
+                  const fromStation = segment.stationDetails[i];
+                  const toStation = segment.stationDetails[i + 1];
+                  
+                  if (fromStation && toStation) {
+                    // Try to get detailed geometry
+                    const detailedGeometry = getDetailedTrackGeometry(
+                      lineId, 
+                      fromStation, 
+                      toStation
+                    );
+                    
+                    if (detailedGeometry.length > 0) {
+                      detailedPaths.push(detailedGeometry);
+                    } else {
+                      // Fallback to direct line between stations
+                      detailedPaths.push([
+                        [fromStation.lat, fromStation.lng] as LatLngExpression,
+                        [toStation.lat, toStation.lng] as LatLngExpression
+                      ]);
+                    }
+                  }
                 }
                 
-                return (
+                // Render all path segments
+                return detailedPaths.map((pathPoints, pathIndex) => (
                   <Polyline
-                    key={`route-segment-${index}`}
+                    key={`route-segment-${index}-path-${pathIndex}`}
                     positions={pathPoints}
                     color={lineColor}
                     weight={6}
                     opacity={0.8}
+                    smoothFactor={1}
                   />
-                );
+                ));
           })}
           
           {/* Draw stations on route */}
