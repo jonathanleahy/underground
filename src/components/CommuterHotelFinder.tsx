@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { RoutingService } from '../services/routingService';
+import { findRoute, Route } from '../services/routingService';
 import { Station } from '../types/underground';
 import { Premier } from '../services/premier-inn-api';
 import { calculateDistance, metersToWalkingMinutes } from '../utils/distance';
@@ -19,7 +19,7 @@ interface HotelWithCommute {
   walkingMinutes: number;
   commuteMinutes: number;
   totalMinutes: number;
-  route: any;
+  route: Route | null;
   score: number;
 }
 
@@ -38,7 +38,7 @@ export const CommuterHotelFinder: React.FC<CommuterHotelFinderProps> = ({
   const [isCalculating, setIsCalculating] = useState(false);
   const [hotelsWithCommute, setHotelsWithCommute] = useState<HotelWithCommute[]>([]);
   
-  const routingService = useMemo(() => new RoutingService(), []);
+  // Remove routingService as we'll use the findRoute function directly
 
   // Calculate commute times for all hotels
   useEffect(() => {
@@ -68,7 +68,7 @@ export const CommuterHotelFinder: React.FC<CommuterHotelFinderProps> = ({
           const walkingMinutes = metersToWalkingMinutes(minDistance);
           
           // Calculate route from nearest station to workplace
-          const route = routingService.findShortestRoute(nearestStation.id, workplaceStation);
+          const route = findRoute(nearestStation.id, workplaceStation);
           
           if (route) {
             const commuteMinutes = route.estimatedTime;
@@ -102,7 +102,7 @@ export const CommuterHotelFinder: React.FC<CommuterHotelFinderProps> = ({
     };
     
     calculateCommutes();
-  }, [workplaceStation, hotels, hotelPricing, stations, routingService]);
+  }, [workplaceStation, hotels, hotelPricing, stations]);
 
   // Filter and sort hotels
   const filteredAndSortedHotels = useMemo(() => {

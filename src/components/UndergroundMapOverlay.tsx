@@ -12,7 +12,7 @@ import { PriceLabel } from './PriceLabel';
 import { RoutePlanner } from './RoutePlanner';
 import { PriceFilter } from './PriceFilter';
 import { CommuterHotelFinder } from './CommuterHotelFinder';
-import { Route as JourneyRoute, RoutingService } from '../services/routingService';
+import { Route as JourneyRoute, findRoute } from '../services/routingService';
 import { smoothLinePath, getLineCurveParams } from '../utils/bezierCurves';
 import { fetchMultipleHotelPricing } from '../services/premier-inn-api';
 import { getBookingUrl } from '../data/premier-inn-urls';
@@ -183,8 +183,7 @@ export const UndergroundMapOverlay: React.FC = () => {
   };
   
   const handleCommuterShowRoute = (fromStation: string, toStation: string) => {
-    const routingService = new RoutingService();
-    const route = routingService.findShortestRoute(fromStation, toStation);
+    const route = findRoute(fromStation, toStation);
     if (route) {
       setCurrentRoute(route);
     }
