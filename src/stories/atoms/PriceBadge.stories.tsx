@@ -61,5 +61,14 @@ export const PremiumPrice: Story = {
   args: {
     price: 399,
     size: 'md',
+    variant: 'premium',
+  },
+};
+
+export const DiscountPrice: Story = {
+  args: {
+    price: 79,
+    size: 'md', 
+    variant: 'discount',
   },
 };
