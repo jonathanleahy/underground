@@ -321,7 +321,22 @@
 .hotel-map-badge.highlighted {
   background: #fbbf24 !important;
   border-color: #f59e0b !important;
-  z-index: 10;
+  z-index: 1000 !important;
+  position: relative;
+}
+
+/* Ensure route appears above other elements */
+.leaflet-overlay-pane svg path {
+  z-index: 500;
+}
+
+/* Selected hotel marker should be on top */
+.leaflet-marker-icon.hotel-badge-marker {
+  z-index: 400 !important;
+}
+
+.leaflet-marker-icon.hotel-badge-marker .hotel-map-badge.highlighted {
+  z-index: 1000 !important;
 }
 
 .hotel-map-badge.highlighted .badge-price,

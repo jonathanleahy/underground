@@ -172,13 +172,9 @@ export const IntegratedMapView: React.FC = () => {
   const [previousBounds, setPreviousBounds] = useState<{ lat: number; lng: number }[] | null>(null);
   const [hasZoomed, setHasZoomed] = useState(false);
   
-  // Log workplace location changes
+  // Track workplace location changes
   useEffect(() => {
-    if (workplaceLocation) {
-      console.log('Workplace location set:', workplaceLocation);
-    } else {
-      console.log('Workplace location cleared');
-    }
+    // Location updates handled by MapController
   }, [workplaceLocation]);
   const mapRef = useRef<LeafletMap | null>(null);
   
@@ -188,7 +184,7 @@ export const IntegratedMapView: React.FC = () => {
   ];
   
   const handleHotelSelect = (hotel: any, hotelDetails?: any) => {
-    console.log('Hotel selected:', hotel.name);
+    // Handle hotel selection
     setHighlightedHotel(hotel.id);
     
     // If hotel details provided, show the bottom panel
@@ -277,6 +273,16 @@ export const IntegratedMapView: React.FC = () => {
     }
   };
   
+  const handleMapClick = () => {
+    // Clear selection and route when clicking on map background
+    if (highlightedHotel || currentRoute) {
+      setHighlightedHotel(null);
+      setCurrentRoute(null);
+      setMapClickedHotelId(null);
+      setDetailsPanelOpen(false);
+    }
+  };
+  
   const handleSearchComplete = (
     usedSegments?: Map<string, Set<string>>, 
     hotelIds?: Set<string>,
@@ -284,12 +290,7 @@ export const IntegratedMapView: React.FC = () => {
     workLocation?: { lat: number; lng: number; postcode: string },
     searchResults?: any
   ) => {
-    console.log('=== MAP RECEIVE DEBUG ===');
-    console.log('Map received hotelIds:', hotelIds ? Array.from(hotelIds) : 'null');
-    console.log('Map received searchResults with', searchResults?.hotels?.length, 'hotels');
-    if (searchResults?.hotels) {
-      console.log('Hotels with prices:', searchResults.hotels.map((h: any) => `${h.hotel.name}: £${h.price}`));
-    }
+    // Process search results
     setVisibleHotelIds(hotelIds || null);
     
     // Store search results for popup data - this is critical for route display
@@ -304,7 +305,7 @@ export const IntegratedMapView: React.FC = () => {
                                    workLocation.lng > -0.6 && workLocation.lng < 0.3;
       
       if (isValidLondonCoords) {
-        console.log('Setting workplace location:', workLocation);
+        // Set workplace location
         setWorkplaceLocation(workLocation);
       } else {
         console.warn('Invalid coordinates for London area:', workLocation);
@@ -325,7 +326,7 @@ export const IntegratedMapView: React.FC = () => {
       }
       
       setMapBounds(hotelBounds);
-      console.log('Setting map bounds to fit', searchResults.hotels.length, 'hotels from search results and workplace');
+      // Set map bounds to fit hotels from search results and workplace
     } else if (hotelIds && hotelIds.size > 0) {
       // Fallback to hotelIds if searchResults not available
       const visibleHotels = premierInnData.hotels.filter(h => hotelIds.has(h.id));
@@ -336,11 +337,11 @@ export const IntegratedMapView: React.FC = () => {
           hotelBounds.push({ lat: workLocation.lat, lng: workLocation.lng });
         }
         setMapBounds(hotelBounds);
-        console.log('Setting map bounds to fit', visibleHotels.length, 'hotels and workplace');
+        // Set map bounds to fit hotels and workplace
       }
     } else if (bounds) {
       setMapBounds(bounds);
-      console.log('Using provided bounds');
+      // Using provided bounds
     }
   };
   
@@ -484,6 +485,8 @@ export const IntegratedMapView: React.FC = () => {
             detailsPanelOpen={detailsPanelOpen}
           />
           
+          <MapClickHandler onMapClick={handleMapClick} />
+          
           {/* Draw tube lines - only connect consecutive stations on the route */}
           {currentRoute && currentRoute.segments.map((segment, index) => {
                 if (!segment.stationDetails || segment.stationDetails.length < 2) {
@@ -514,14 +517,14 @@ export const IntegratedMapView: React.FC = () => {
           })}
           
           {/* Draw stations on route */}
-          {currentRoute && currentRoute.segments.map((segment) => 
-            segment.stationDetails?.map(station => {
+          {currentRoute && currentRoute.segments.map((segment, segmentIndex) => 
+            segment.stationDetails?.map((station, stationIndex) => {
               if (!station) return null;
               const position: LatLngExpression = [station.lat, station.lng];
               
               return (
                 <CircleMarker
-                  key={station.id}
+                  key={`${segment.line}-${station.id}-${segmentIndex}-${stationIndex}`}
                   center={position}
                   radius={6}
                   fillColor="#FFD700"
@@ -546,11 +549,11 @@ export const IntegratedMapView: React.FC = () => {
             .filter(hotel => {
               const isVisible = !visibleHotelIds || visibleHotelIds.has(hotel.id);
               if (visibleHotelIds && !isVisible) {
-                console.log(`Hotel ${hotel.name} (${hotel.id}) filtered out - not in visibleHotelIds`);
+                // Hotel filtered out - not in visibleHotelIds
               } else if (visibleHotelIds && isVisible) {
                 const hotelData = allSearchResults?.hotels?.find((h: any) => h.hotel.id === hotel.id);
                 if (hotelData) {
-                  console.log(`Showing hotel ${hotel.name} (${hotel.id}) with price £${hotelData.price}`);
+                  // Showing hotel with price
                 }
               }
               return isVisible;
@@ -610,7 +613,8 @@ export const IntegratedMapView: React.FC = () => {
                       
                       return L.divIcon({
                         html: `
-                          <div class="hotel-map-badge price-${priceCategory} ${isHighlighted ? 'highlighted' : ''} ${isTransparent ? 'transparent' : ''}">
+                          <div class="hotel-map-badge price-${priceCategory} ${isHighlighted ? 'highlighted' : ''} ${isTransparent ? 'transparent' : ''}" 
+                               style="${isHighlighted ? 'z-index: 1000 !important;' : ''}">
                             <span class="badge-price">£${price}</span>
                             ${journeyTime ? `<span class="badge-time">${journeyTime}m</span>` : ''}
                           </div>
@@ -622,6 +626,7 @@ export const IntegratedMapView: React.FC = () => {
                     })()}
                     eventHandlers={{
                       click: (e) => {
+                        e.originalEvent.stopPropagation();
                         handleMapHotelClick(hotel);
                         
                         // Create custom popup with dynamic positioning
@@ -652,7 +657,7 @@ export const IntegratedMapView: React.FC = () => {
                               </div>
                               <div class="popup-actions">
                                 ${hotelData ? `
-                                  <button class="popup-btn route-btn" onclick="console.log('route')">
+                                  <button class="popup-btn route-btn">
                                     ${mapClickedHotelId === hotel.id ? 'Show Details' : 'Show Route'}
                                   </button>
                                 ` : ''}
@@ -669,31 +674,33 @@ export const IntegratedMapView: React.FC = () => {
                           const POPUP_HEIGHT = hotelData ? 380 : 250; // Smaller without journey details
                           
                           let offset = L.point(0, -20);
+                          let lngDiff = 0;
+                          let latDiff = 0;
                           
                           if (workplaceLocation) {
-                            const lngDiff = hotel.lng - workplaceLocation.lng;
-                            const latDiff = hotel.lat - workplaceLocation.lat;
+                            lngDiff = hotel.lng - workplaceLocation.lng;
+                            latDiff = hotel.lat - workplaceLocation.lat;
                             
-                            console.log(`Hotel ${hotel.name}: lngDiff=${lngDiff.toFixed(4)}, latDiff=${latDiff.toFixed(4)}`);
+                            // Calculate position offset based on relative position to workplace
                             
                             // Determine dominant direction - adjusted threshold for London's latitude
                             if (Math.abs(lngDiff) > Math.abs(latDiff) * 0.7) {
                               // Primarily horizontal difference
                               if (lngDiff < 0) {
-                                console.log('Positioning LEFT');
+                                // Position popup to left
                                 offset = L.point(-(POPUP_WIDTH/2 + 20), 0); // Popup to left of marker
                               } else {
-                                console.log('Positioning RIGHT');
+                                // Position popup to right
                                 offset = L.point(POPUP_WIDTH/2 + 20, 0); // Popup to right of marker
                               }
                             } else {
                               // Primarily vertical difference
                               if (latDiff > 0) {
-                                console.log('Positioning TOP');
+                                // Position popup above
                                 // For top position, we need negative offset (half the popup height + padding)
                                 offset = L.point(0, -(POPUP_HEIGHT/2 + 20)); // Popup above marker
                               } else {
-                                console.log('Positioning BOTTOM');
+                                // Position popup below
                                 // For bottom position, we need positive offset (half the popup height + padding)
                                 offset = L.point(0, POPUP_HEIGHT/2 + 20); // Popup below marker
                               }
@@ -716,7 +723,7 @@ export const IntegratedMapView: React.FC = () => {
                               const rect = popupElement.getBoundingClientRect();
                               const actualWidth = rect.width;
                               const actualHeight = rect.height;
-                              console.log(`Actual popup dimensions: ${actualWidth}x${actualHeight}px`);
+                              // Update positioning based on actual dimensions
                               
                               // Recalculate and update offset based on actual dimensions
                               let newOffset = L.point(0, -20);
@@ -789,7 +796,7 @@ export const IntegratedMapView: React.FC = () => {
           hotel={selectedHotelDetails}
           isOpen={detailsPanelOpen}
           onClose={() => setDetailsPanelOpen(false)}
-          onBook={() => console.log('Booking initiated')}
+          onBook={() => {}}
           checkInDate={selectedDate.checkIn || ''}
           nights={selectedDate.nights}
         />

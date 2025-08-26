@@ -3,7 +3,15 @@ import { Station } from '../types/underground';
 import { findRoute } from '../services/routingService';
 import { calculateDistance, metersToWalkingMinutes } from '../utils/distance';
 import { calculateHotelPrice } from '../utils/priceCalculator';
-import { lookupPostcode, findNearestStations, popularPostcodes, isValidUKPostcode, formatPostcode } from '../services/postcodeService';
+import { 
+  lookupPostcode, 
+  findNearestStations, 
+  popularPostcodes, 
+  isValidUKPostcode, 
+  formatPostcode,
+  lookupDestination,
+  getPopularDestinations 
+} from '../services/postcodeService';
 import { getBookingUrl } from '../data/premier-inn-urls';
 import './PostcodeCommuterFinder.css';
 
@@ -156,9 +164,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   // Filter results when journey time or price changes
   useEffect(() => {
     if (allSearchResults && allSearchResults.hotels) {
-      console.log('=== FILTER DEBUG ===');
-      console.log('Filtering - Journey:', minJourneyTime, '-', maxJourneyTime, 'Price:', minPrice, '-', maxPrice, 'Stars:', minStarRating, '-', maxStarRating);
-      console.log('Total hotels before filter:', allSearchResults.hotels.length);
+      // Apply filters to hotels
       
       const filtered = allSearchResults.hotels.filter((hotel: any) => {
         const rating = hotel.starRating || 3.5;
@@ -167,17 +173,24 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
                        rating >= minStarRating && rating <= maxStarRating;
         if (!passes) {
           if (hotel.price < minPrice || hotel.price > maxPrice) {
-            console.log(`Filtering out ${hotel.hotel.name}: price ${hotel.price} not in range ${minPrice}-${maxPrice}`);
+            // Price out of range
           }
           if (rating < minStarRating || rating > maxStarRating) {
-            console.log(`Filtering out ${hotel.hotel.name}: rating ${rating} not in range ${minStarRating}-${maxStarRating}`);
+            // Rating out of range
           }
         }
         return passes;
       });
       
+      // Hotels filtered based on criteria
+      // Log filtering for debugging
+      console.log(`Price filter: £${minPrice} - £${maxPrice}`);
       console.log(`Filtered ${allSearchResults.hotels.length} hotels to ${filtered.length}`);
-      console.log('Filtered hotel IDs:', filtered.map((h: any) => `${h.hotel.name} (${h.hotel.id}): £${h.price}`));
+      
+      // Log some examples of what passed the filter
+      filtered.slice(0, 5).forEach((hotel: any) => {
+        console.log(`Included: ${hotel.hotel.name} - price: £${hotel.price}`);
+      });
       
       // Re-sort by score
       filtered.sort((a: any, b: any) => {
@@ -232,8 +245,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
       // ONLY update map here, not in updateMapWithSelectedHotels to avoid race conditions
       // Update map with new segments, visible hotels and proper bounds
       if (onSearchComplete && allSearchResults.location) {
-        console.log('Passing visibleHotelIds to map:', Array.from(visibleHotelIds));
-        console.log('Passing filtered results with', filtered.length, 'hotels');
+        // Pass visible hotel IDs and filtered results to map
         onSearchComplete(
           usedSegments, 
           visibleHotelIds, 
@@ -249,21 +261,18 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
     }
   }, [minJourneyTime, maxJourneyTime, minPrice, maxPrice, minStarRating, maxStarRating, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
 
-  const searchWithPostcode = async (searchPostcode: string) => {
-    if (!isValidUKPostcode(searchPostcode)) {
-      setIsValidPostcode(false);
-      return;
-    }
-
+  const searchWithPostcode = async (searchQuery: string) => {
     setIsSearching(true);
     setShowQuickPicks(false);
     
-    // Look up postcode coordinates
-    console.log('Searching for postcode:', searchPostcode);
-    const location = await lookupPostcode(searchPostcode);
-    console.log('Postcode lookup result:', location);
+    // Look up destination (postcode, landmark, or place)
+    const location = await lookupDestination(searchQuery);
     
     if (location) {
+      // Update postcode display with the location name
+      setPostcode(location.name || searchQuery);
+      setIsValidPostcode(true);
+      
       // Find nearest stations
       const nearbyStations = findNearestStations(location.lat, location.lng, stations);
       
@@ -298,22 +307,27 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         // Calculate price range from results
         if (hotelResults.length > 0) {
           const prices = hotelResults.map((h: any) => h.price);
-          const minPrice = Math.min(...prices);
+          const minPriceVal = Math.min(...prices);
           const maxPriceVal = Math.max(...prices);
-          setPriceRange({ min: minPrice, max: maxPriceVal });
-          setMinPrice(minPrice); // Set initial min filter
-          setMaxPrice(maxPriceVal); // Set initial max filter
+          setPriceRange({ min: minPriceVal, max: maxPriceVal });
+          
+          // Only set initial filter values if they haven't been customized
+          // (i.e., if they're still at their default values)
+          if (minPrice === 0 && maxPrice === 200) {
+            setMinPrice(minPriceVal); // Set initial min filter
+            setMaxPrice(maxPriceVal); // Set initial max filter
+          }
         }
         
         // Store all results
         const results = {
-          postcode: formatPostcode(searchPostcode),
+          postcode: location.name || searchQuery,
           location,
           nearbyStations,
           hotels: hotelResults,
           usedSegments,
           visibleHotelIds,
-          formattedPostcode: formatPostcode(searchPostcode) // Store formatted postcode
+          formattedPostcode: location.name || searchQuery // Store formatted location name
         };
         setAllSearchResults(results);
         setSearchResults(results);
@@ -333,7 +347,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
           onSearchComplete(usedSegments, visibleHotelIds, bounds, {
             lat: location.lat,
             lng: location.lng,
-            postcode: formatPostcode(searchPostcode)
+            postcode: location.name || searchQuery
           }, searchResults);
         }
       }
@@ -477,13 +491,13 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
             type="text"
             value={postcode}
             onChange={(e) => {
-              setPostcode(e.target.value.toUpperCase());
+              setPostcode(e.target.value);
               setIsValidPostcode(true);
             }}
             onKeyPress={(e) => e.key === 'Enter' && handlePostcodeSubmit()}
-            placeholder="Enter workplace postcode (e.g., EC2M 4NS)"
+            placeholder="Enter destination (e.g., British Museum, EC2M 4NS)"
             className={`postcode-input ${!isValidPostcode ? 'error' : ''}`}
-            maxLength={8}
+            maxLength={50}
           />
           <button
             onClick={handlePostcodeSubmit}
@@ -495,7 +509,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         </div>
         
         {!isValidPostcode && (
-          <p className="error-message">Please enter a valid UK postcode</p>
+          <p className="error-message">Could not find destination. Try a postcode or landmark name.</p>
         )}
         
         {/* Journey Time Filter */}
@@ -740,23 +754,42 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         )}
       </div>
 
-      {/* Quick Pick Postcodes */}
+      {/* Quick Picks */}
       {showQuickPicks && (
-        <div className="quick-picks">
-          <label>Popular business areas:</label>
-          <div className="quick-pick-grid">
-            {popularPostcodes.slice(0, 6).map(item => (
-              <button
-                key={item.postcode}
-                onClick={() => handleQuickPick(item.postcode)}
-                className="quick-pick-btn"
-              >
-                <strong>{item.area}</strong>
-                <span>{item.postcode}</span>
-              </button>
-            ))}
+        <>
+          <div className="quick-picks">
+            <label>Popular business areas:</label>
+            <div className="quick-pick-grid">
+              {popularPostcodes.slice(0, 6).map(item => (
+                <button
+                  key={item.postcode}
+                  onClick={() => handleQuickPick(item.postcode)}
+                  className="quick-pick-btn"
+                >
+                  <strong>{item.area}</strong>
+                  <span>{item.postcode}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+          
+          <div className="quick-picks" style={{ marginTop: '16px' }}>
+            <label>Popular destinations:</label>
+            <div className="quick-pick-grid">
+              {getPopularDestinations().slice(0, 6).map(dest => (
+                <button
+                  key={dest.query}
+                  onClick={() => handleQuickPick(dest.query)}
+                  className="quick-pick-btn destination-btn"
+                  title={dest.name}
+                >
+                  <span style={{ fontSize: '20px' }}>{dest.icon}</span>
+                  <strong style={{ fontSize: '12px' }}>{dest.name}</strong>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       {/* Loading State */}
