@@ -356,7 +356,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
                       setSelectedStation(s.station.id);
                       // Just update the selected station without recalculating
                       // This keeps the data static as requested
-                    }
+                    }}
                     className={`station-pill ${selectedStation === s.station.id ? 'active' : ''}`}
                   >
                     {s.station.name} ({s.walkingMinutes} min)
