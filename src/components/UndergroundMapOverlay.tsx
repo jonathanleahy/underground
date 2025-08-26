@@ -11,7 +11,7 @@ import { DatePicker } from './DatePicker';
 import { PriceLabel } from './PriceLabel';
 import { RoutePlanner } from './RoutePlanner';
 import { PriceFilter } from './PriceFilter';
-import { CommuterHotelFinder } from './CommuterHotelFinder';
+import { PostcodeCommuterFinder } from './PostcodeCommuterFinder';
 import { Route as JourneyRoute, findRoute } from '../services/routingService';
 import { smoothLinePath, getLineCurveParams } from '../utils/bezierCurves';
 import { fetchMultipleHotelPricing } from '../services/premier-inn-api';
@@ -413,17 +413,20 @@ export const UndergroundMapOverlay: React.FC = () => {
               marginBottom: showCommuterFinder ? '12px' : '0'
             }}
           >
-            {showCommuterFinder ? '✕ Close Commuter Finder' : '🚇 Open Commuter Hotel Finder'}
+            {showCommuterFinder ? '✕ Close Hotel Finder' : '🏨 Find Hotels Near Your Destination'}
           </button>
           
           {showCommuterFinder && (
-            <CommuterHotelFinder
+            <PostcodeCommuterFinder
               stations={typedData.stations}
               hotels={premierInnData.hotels}
               hotelPricing={hotelPricing}
+              selectedDate={selectedDate}
               onSelectHotel={(hotel) => {
                 setHighlightedItem({ id: hotel.id, type: 'hotel' });
                 setFocusLocation({ lat: hotel.lat, lng: hotel.lng });
+                setShowHotels(true);
+                setShowPricesOnMap(true);
               }}
               onShowRoute={handleCommuterShowRoute}
             />
