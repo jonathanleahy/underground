@@ -26,6 +26,14 @@
       "nearestTube": "Aldgate"
     },
     {
+      "id": "london-whitechapel",
+      "name": "London Whitechapel",
+      "lat": 51.5194,
+      "lng": -0.0598,
+      "area": "Whitechapel",
+      "nearestTube": "Whitechapel"
+    },
+    {
       "id": "london-tower-bridge",
       "name": "London Tower Bridge",
       "lat": 51.5055,
@@ -384,10 +392,282 @@
       "lng": -0.4786,
       "area": "Uxbridge",
       "nearestTube": "Uxbridge"
+    },
+    {
+      "id": "hub-london-city-bank",
+      "name": "hub London City Bank",
+      "lat": 51.5133,
+      "lng": -0.0886,
+      "area": "Bank",
+      "nearestTube": "Bank"
+    },
+    {
+      "id": "hub-london-clerkenwell",
+      "name": "hub London Clerkenwell",
+      "lat": 51.5229,
+      "lng": -0.1065,
+      "area": "Clerkenwell",
+      "nearestTube": "Farringdon"
+    },
+    {
+      "id": "hub-london-goodge-street",
+      "name": "hub London Goodge Street",
+      "lat": 51.5207,
+      "lng": -0.1343,
+      "area": "Goodge Street",
+      "nearestTube": "Goodge Street"
+    },
+    {
+      "id": "hub-london-marylebone",
+      "name": "hub London Marylebone",
+      "lat": 51.5222,
+      "lng": -0.1631,
+      "area": "Marylebone",
+      "nearestTube": "Baker Street"
+    },
+    {
+      "id": "hub-london-paddington",
+      "name": "hub London Paddington",
+      "lat": 51.5154,
+      "lng": -0.1755,
+      "area": "Paddington",
+      "nearestTube": "Paddington"
+    },
+    {
+      "id": "hub-london-spitalfields",
+      "name": "hub London Spitalfields, Brick Lane",
+      "lat": 51.5194,
+      "lng": -0.0717,
+      "area": "Spitalfields",
+      "nearestTube": "Liverpool Street"
+    },
+    {
+      "id": "hub-london-shoreditch",
+      "name": "hub London Shoreditch",
+      "lat": 51.5246,
+      "lng": -0.0777,
+      "area": "Shoreditch",
+      "nearestTube": "Old Street"
+    },
+    {
+      "id": "hub-london-soho",
+      "name": "hub London Soho",
+      "lat": 51.5139,
+      "lng": -0.1304,
+      "area": "Soho",
+      "nearestTube": "Tottenham Court Road"
+    },
+    {
+      "id": "hub-london-tower-bridge",
+      "name": "hub London Tower Bridge",
+      "lat": 51.5055,
+      "lng": -0.0754,
+      "area": "Tower Bridge",
+      "nearestTube": "Tower Hill"
+    },
+    {
+      "id": "hub-london-westminster-abbey",
+      "name": "hub London Westminster Abbey",
+      "lat": 51.4998,
+      "lng": -0.1272,
+      "area": "Westminster",
+      "nearestTube": "Westminster"
+    },
+    {
+      "id": "hub-london-westminster-st-james",
+      "name": "hub London Westminster, St James's Park",
+      "lat": 51.4994,
+      "lng": -0.1343,
+      "area": "Westminster",
+      "nearestTube": "St James's Park"
+    },
+    {
+      "id": "london-blackfriars",
+      "name": "London Blackfriars (Fleet Street)",
+      "lat": 51.5138,
+      "lng": -0.1035,
+      "area": "Blackfriars",
+      "nearestTube": "Blackfriars"
+    },
+    {
+      "id": "london-city-old-street",
+      "name": "London City (Old Street)",
+      "lat": 51.5246,
+      "lng": -0.0873,
+      "area": "Old Street",
+      "nearestTube": "Old Street"
+    },
+    {
+      "id": "london-city-tower-hill",
+      "name": "London City (Tower Hill)",
+      "lat": 51.5100,
+      "lng": -0.0763,
+      "area": "Tower Hill",
+      "nearestTube": "Tower Hill"
+    },
+    {
+      "id": "london-farringdon",
+      "name": "London Farringdon (Smithfield)",
+      "lat": 51.5201,
+      "lng": -0.1062,
+      "area": "Farringdon",
+      "nearestTube": "Farringdon"
+    },
+    {
+      "id": "london-kings-cross",
+      "name": "London Kings Cross",
+      "lat": 51.5302,
+      "lng": -0.1241,
+      "area": "Kings Cross",
+      "nearestTube": "Kings Cross St Pancras"
+    },
+    {
+      "id": "london-paddington-basin",
+      "name": "London Paddington (Paddington Basin)",
+      "lat": 51.5194,
+      "lng": -0.1792,
+      "area": "Paddington",
+      "nearestTube": "Paddington"
+    },
+    {
+      "id": "london-paddington-station",
+      "name": "London Paddington (Paddington Station)",
+      "lat": 51.5175,
+      "lng": -0.1769,
+      "area": "Paddington",
+      "nearestTube": "Paddington"
+    },
+    {
+      "id": "london-southwark-borough",
+      "name": "London Southwark (Borough High St)",
+      "lat": 51.5004,
+      "lng": -0.0928,
+      "area": "Southwark",
+      "nearestTube": "Borough"
+    },
+    {
+      "id": "london-southwark-station",
+      "name": "London Southwark (Southwark Station)",
+      "lat": 51.5040,
+      "lng": -0.1049,
+      "area": "Southwark",
+      "nearestTube": "Southwark"
+    },
+    {
+      "id": "london-st-pancras",
+      "name": "London St Pancras",
+      "lat": 51.5302,
+      "lng": -0.1241,
+      "area": "St Pancras",
+      "nearestTube": "Kings Cross St Pancras"
+    },
+    {
+      "id": "london-southgate",
+      "name": "London Southgate",
+      "lat": 51.6322,
+      "lng": -0.1278,
+      "area": "Southgate",
+      "nearestTube": "Southgate"
+    },
+    {
+      "id": "london-tottenham-hale",
+      "name": "London Tottenham Hale",
+      "lat": 51.5883,
+      "lng": -0.0598,
+      "area": "Tottenham",
+      "nearestTube": "Tottenham Hale"
+    },
+    {
+      "id": "london-new-southgate",
+      "name": "London New Southgate",
+      "lat": 51.6143,
+      "lng": -0.1432,
+      "area": "New Southgate",
+      "nearestTube": "Arnos Grove"
+    },
+    {
+      "id": "london-hackney",
+      "name": "London Hackney",
+      "lat": 51.5458,
+      "lng": -0.0558,
+      "area": "Hackney",
+      "nearestTube": "Hackney Central"
+    },
+    {
+      "id": "london-romford",
+      "name": "London Romford West",
+      "lat": 51.5794,
+      "lng": 0.1837,
+      "area": "Romford",
+      "nearestTube": "Romford"
+    },
+    {
+      "id": "london-sidcup",
+      "name": "London Sidcup",
+      "lat": 51.4261,
+      "lng": 0.1025,
+      "area": "Sidcup",
+      "nearestTube": "Sidcup"
+    },
+    {
+      "id": "london-sutton",
+      "name": "London Sutton",
+      "lat": 51.3618,
+      "lng": -0.1945,
+      "area": "Sutton",
+      "nearestTube": "Sutton"
+    },
+    {
+      "id": "london-tolworth",
+      "name": "London Tolworth",
+      "lat": 51.3769,
+      "lng": -0.2798,
+      "area": "Tolworth",
+      "nearestTube": "Tolworth"
+    },
+    {
+      "id": "london-elstree-borehamwood",
+      "name": "London Elstree/Borehamwood",
+      "lat": 51.6570,
+      "lng": -0.2801,
+      "area": "Borehamwood",
+      "nearestTube": "Elstree"
+    },
+    {
+      "id": "london-hendon",
+      "name": "London Hendon (The Hyde)",
+      "lat": 51.5929,
+      "lng": -0.2294,
+      "area": "Hendon",
+      "nearestTube": "Hendon Central"
+    },
+    {
+      "id": "london-loughton-buckhurst",
+      "name": "London Loughton/Buckhurst Hill",
+      "lat": 51.6412,
+      "lng": 0.0468,
+      "area": "Loughton",
+      "nearestTube": "Loughton"
+    },
+    {
+      "id": "london-waterloo",
+      "name": "London Waterloo",
+      "lat": 51.5031,
+      "lng": -0.1132,
+      "area": "Waterloo",
+      "nearestTube": "Waterloo"
+    },
+    {
+      "id": "london-wood-green",
+      "name": "London Wood Green",
+      "lat": 51.5975,
+      "lng": -0.1089,
+      "area": "Wood Green",
+      "nearestTube": "Wood Green"
     }
   ],
   "stats": {
-    "total": 48,
+    "total": 83,
     "bounds": {
       "north": 51.6525,
       "south": 51.3727,

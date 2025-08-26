@@ -1,0 +1,377 @@
+.integrated-map-view {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Left Panel */
+.left-panel {
+  width: 380px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #d1d7dc;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.panel-header {
+  background: #1c1d1f;
+  color: white;
+  padding: 16px 20px;
+  flex-shrink: 0;
+}
+
+.panel-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.panel-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #a8a9ab;
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #f8f9fa;
+}
+
+.panel-footer {
+  padding: 16px 20px;
+  background: white;
+  border-top: 1px solid #e9ecef;
+  flex-shrink: 0;
+}
+
+.show-prices-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #495057;
+  cursor: pointer;
+}
+
+.show-prices-toggle input {
+  cursor: pointer;
+}
+
+/* Map Area */
+.map-area {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Back to Overview Button */
+.back-to-overview-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  padding: 10px 16px;
+  background: white;
+  border: 2px solid #1c1d1f;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1c1d1f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.back-to-overview-btn:hover {
+  background: #1c1d1f;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.reset-zoom-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 10px 16px;
+  background: white;
+  border: 2px solid #10b981;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #10b981;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.reset-zoom-btn:hover {
+  background: #10b981;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.full-map {
+  width: 100%;
+  height: 100%;
+  transition: height 0.3s ease;
+}
+
+/* When details panel is open, reduce map height */
+.integrated-map-view.details-open .full-map {
+  height: calc(100vh - 45vh); /* Adjust based on panel height */
+}
+
+/* Popups */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.station-popup h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #212529;
+}
+
+.station-popup p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.hotel-popup {
+  min-width: 280px;
+  max-width: 320px;
+}
+
+.hotel-popup h4 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: #212529;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 8px;
+}
+
+.hotel-popup p {
+  margin: 6px 0;
+  font-size: 13px;
+  color: #495057;
+}
+
+.hotel-popup strong {
+  color: #212529;
+}
+
+.hotel-popup .journey-info {
+  background: #f8f9fa;
+  padding: 8px;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+.hotel-popup .journey-time {
+  font-size: 14px;
+  color: #10b981;
+  margin-bottom: 6px;
+}
+
+.hotel-popup .station-info {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 4px 0;
+}
+
+.hotel-popup .changes {
+  color: #f59e0b;
+  font-size: 12px;
+}
+
+.hotel-popup .walk-time {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.hotel-popup .price-section {
+  background: #fef3c7;
+  padding: 8px;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+.hotel-popup .price-main {
+  font-size: 16px;
+  color: #92400e;
+  margin-bottom: 4px;
+}
+
+.hotel-popup .total-price {
+  font-size: 12px;
+  color: #78350f;
+}
+
+.hotel-popup .popup-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.hotel-popup .popup-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.hotel-popup .route-btn {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.hotel-popup .route-btn:hover {
+  background: #e5e7eb;
+}
+
+.hotel-popup .booking-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.hotel-popup .booking-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Hotel Map Badge */
+.hotel-badge-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.hotel-map-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #10b981;
+  border-radius: 14px;
+  padding: 4px 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  border: 2px solid #047857;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  gap: 6px;
+}
+
+/* Price-based color coding */
+.hotel-map-badge.price-low {
+  background: #22c55e; /* Bright green for budget-friendly */
+  border-color: #16a34a;
+}
+
+.hotel-map-badge.price-low:hover {
+  background: #16a34a;
+}
+
+.hotel-map-badge.price-mid {
+  background: #3b82f6; /* Blue for mid-range */
+  border-color: #2563eb;
+}
+
+.hotel-map-badge.price-mid:hover {
+  background: #2563eb;
+}
+
+.hotel-map-badge.price-high {
+  background: #a855f7; /* Purple for premium */
+  border-color: #9333ea;
+}
+
+.hotel-map-badge.price-high:hover {
+  background: #9333ea;
+}
+
+.hotel-map-badge:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.hotel-map-badge.highlighted {
+  background: #fbbf24 !important;
+  border-color: #f59e0b !important;
+  z-index: 10;
+}
+
+.hotel-map-badge.highlighted .badge-price,
+.hotel-map-badge.highlighted .badge-time {
+  color: #92400e !important;
+}
+
+.hotel-map-badge.transparent {
+  opacity: 0.5;
+}
+
+.badge-price {
+  color: white;
+  font-weight: 700;
+}
+
+.badge-time {
+  color: white;
+  padding-left: 6px;
+  border-left: 1px solid rgba(255,255,255,0.3);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .integrated-map-view {
+    flex-direction: column;
+  }
+  
+  .left-panel {
+    width: 100%;
+    height: 50vh;
+  }
+  
+  .map-area {
+    height: 50vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .left-panel {
+    width: 100%;
+    height: 60vh;
+  }
+  
+  .map-area {
+    height: 40vh;
+  }
+  
+  .panel-header h1 {
+    font-size: 20px;
+  }
+}
