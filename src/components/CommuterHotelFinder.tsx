@@ -76,7 +76,23 @@ export const CommuterHotelFinder: React.FC<CommuterHotelFinderProps> = ({
             
             // Calculate score (lower is better)
             const priceInfo = hotelPricing.get(hotel.id);
-            const price = priceInfo?.price || 999;
+            let price = priceInfo?.price;
+            
+            // If no actual price, estimate based on distance from center
+            if (!price) {
+              const centerLat = 51.5074;
+              const centerLng = -0.1278;
+              const distanceFromCenterMeters = calculateDistance(hotel.lat, hotel.lng, centerLat, centerLng);
+              const distanceKm = distanceFromCenterMeters / 1000;
+              
+              if (distanceKm < 3) {
+                price = Math.round(120 + Math.random() * 60);
+              } else if (distanceKm < 8) {
+                price = Math.round(80 + Math.random() * 40);
+              } else {
+                price = Math.round(50 + Math.random() * 30);
+              }
+            }
             const timeScore = totalMinutes / 60; // Normalize to 0-1 range (assuming max 60 min)
             const priceScore = price / 200; // Normalize to 0-1 range (assuming max £200)
             const walkScore = walkingMinutes / 15; // Normalize to 0-1 range (assuming max 15 min walk)
@@ -114,8 +130,18 @@ export const CommuterHotelFinder: React.FC<CommuterHotelFinderProps> = ({
         case 'time':
           return a.totalMinutes - b.totalMinutes;
         case 'price':
-          const priceA = hotelPricing.get(a.hotel.id)?.price || 999;
-          const priceB = hotelPricing.get(b.hotel.id)?.price || 999;
+          let priceA = hotelPricing.get(a.hotel.id)?.price;
+          let priceB = hotelPricing.get(b.hotel.id)?.price;
+          
+          // Use estimated prices if no actual prices
+          if (!priceA) {
+            const distA = calculateDistance(a.hotel.lat, a.hotel.lng, 51.5074, -0.1278) / 1000;
+            priceA = distA < 3 ? 140 : distA < 8 ? 100 : 65;
+          }
+          if (!priceB) {
+            const distB = calculateDistance(b.hotel.lat, b.hotel.lng, 51.5074, -0.1278) / 1000;
+            priceB = distB < 3 ? 140 : distB < 8 ? 100 : 65;
+          }
           return priceA - priceB;
         case 'score':
           return a.score - b.score;
@@ -277,7 +303,18 @@ export const CommuterHotelFinder: React.FC<CommuterHotelFinderProps> = ({
                         )}
                       </>
                     ) : (
-                      <div className="price-loading">...</div>
+                      // Show estimated price when no actual pricing loaded
+                      <>
+                        <div className="price-amount">
+                          £{(() => {
+                            const dist = calculateDistance(item.hotel.lat, item.hotel.lng, 51.5074, -0.1278) / 1000;
+                            if (dist < 3) return Math.round(120 + Math.random() * 60);
+                            if (dist < 8) return Math.round(80 + Math.random() * 40);
+                            return Math.round(50 + Math.random() * 30);
+                          })()}
+                        </div>
+                        <div className="price-night" style={{ opacity: 0.7 }}>est. per night</div>
+                      </>
                     )}
                   </div>
                 </div>
