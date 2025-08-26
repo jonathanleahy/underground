@@ -347,20 +347,46 @@ export const UndergroundMapOverlay: React.FC = () => {
         </div>
         
         {/* Hotel Pricing Section */}
-        <DatePicker 
-          onDateChange={handleDateChange}
-          onSearch={handleSearchPrices}
-        />
-        
-        {showHotels && hotelPricing.size > 0 && (
-          <PriceFilter
-            minPrice={actualPriceRange[0]}
-            maxPrice={actualPriceRange[1]}
-            onFilterChange={handlePriceFilterChange}
-            hotelCount={premierInnData.hotels.length}
-            filteredCount={premierInnData.hotels.filter(h => isHotelInPriceRange(h.id)).length}
-          />
-        )}
+        <div className="control-section">
+          <button
+            onClick={() => setShowHotels(!showHotels)}
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: showHotels 
+                ? 'linear-gradient(135deg, #7C3AED, #6D28D9)' 
+                : 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: showHotels ? '12px' : '0'
+            }}
+          >
+            {showHotels ? '− Hide Hotel Availability' : '+ Check Hotel Availability 🏨'}
+          </button>
+          
+          {showHotels && (
+            <>
+              <DatePicker 
+                onDateChange={handleDateChange}
+                onSearch={handleSearchPrices}
+              />
+              
+              {hotelPricing.size > 0 && (
+                <PriceFilter
+                  minPrice={actualPriceRange[0]}
+                  maxPrice={actualPriceRange[1]}
+                  onFilterChange={handlePriceFilterChange}
+                  hotelCount={premierInnData.hotels.length}
+                  filteredCount={premierInnData.hotels.filter(h => isHotelInPriceRange(h.id)).length}
+                />
+              )}
+            </>
+          )}
+        </div>
         
         {/* Commuter Hotel Finder Section */}
         <div className="control-section">
