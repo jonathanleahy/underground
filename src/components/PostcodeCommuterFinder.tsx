@@ -18,6 +18,7 @@ interface PostcodeCommuterFinderProps {
   };
   onSelectHotel: (hotel: any) => void;
   onShowRoute: (fromStation: string, toStation: string) => void;
+  onSearchComplete?: (usedSegments?: Map<string, Set<string>>) => void;
 }
 
 export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
@@ -26,7 +27,8 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   hotelPricing,
   selectedDate,
   onSelectHotel,
-  onShowRoute
+  onShowRoute,
+  onSearchComplete
 }) => {
   const [postcode, setPostcode] = useState('');
   const [isValidPostcode, setIsValidPostcode] = useState(true);
@@ -35,42 +37,11 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   const [selectedStation, setSelectedStation] = useState<string>('');
   const [maxJourneyTime, setMaxJourneyTime] = useState(30);
   const [showQuickPicks, setShowQuickPicks] = useState(true);
+  const [allSearchResults, setAllSearchResults] = useState<any>(null); // Store all results
+  const [filteredResults, setFilteredResults] = useState<any>(null); // Store filtered results
 
-  const handlePostcodeSubmit = async () => {
-    if (!isValidUKPostcode(postcode)) {
-      setIsValidPostcode(false);
-      return;
-    }
-
-    setIsSearching(true);
-    setShowQuickPicks(false);
-    
-    // Look up postcode coordinates
-    const location = await lookupPostcode(postcode);
-    
-    if (location) {
-      // Find nearest stations
-      const nearbyStations = findNearestStations(location.lat, location.lng, stations);
-      
-      if (nearbyStations.length > 0) {
-        // Auto-select closest station
-        setSelectedStation(nearbyStations[0].station.id);
-        
-        // Find best hotels for each nearby station
-        const hotelResults = await findBestHotels(nearbyStations);
-        
-        setSearchResults({
-          postcode: formatPostcode(postcode),
-          location,
-          nearbyStations,
-          hotels: hotelResults
-        });
-      }
-    } else {
-      setIsValidPostcode(false);
-    }
-    
-    setIsSearching(false);
+  const handlePostcodeSubmit = () => {
+    searchWithPostcode(postcode);
   };
 
   const findBestHotels = async (nearbyStations: any[]) => {
@@ -99,7 +70,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
           const walkingMinutes = metersToWalkingMinutes(minDistance);
           const route = findRoute(nearestStationToHotel.id, workplaceStation);
           
-          if (route && route.estimatedTime + walkingMinutes <= maxJourneyTime) {
+          if (route) { // Remove time filtering here - we'll filter separately
             const priceInfo = hotelPricing.get(hotel.id);
             let price = priceInfo?.price;
             
@@ -142,12 +113,120 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
       if (seen.has(opt.hotel.id)) return false;
       seen.add(opt.hotel.id);
       return true;
-    }).slice(0, 5);
+    }).slice(0, 20); // Get more hotels initially for better filtering
+  };
+
+  // Filter results when journey time changes
+  useEffect(() => {
+    if (allSearchResults && allSearchResults.hotels) {
+      const filtered = allSearchResults.hotels.filter((hotel: any) => 
+        hotel.totalTime <= maxJourneyTime
+      );
+      
+      // Re-sort by score
+      filtered.sort((a: any, b: any) => {
+        const scoreA = a.totalTime * 0.6 + (a.price / 200) * 0.4;
+        const scoreB = b.totalTime * 0.6 + (b.price / 200) * 0.4;
+        return scoreA - scoreB;
+      });
+      
+      // Recalculate used segments for filtered hotels
+      const usedSegments = new Map<string, Set<string>>();
+      filtered.forEach((hotel: any) => {
+        if (hotel.route && hotel.route.segments) {
+          hotel.route.segments.forEach((segment: any) => {
+            if (!usedSegments.has(segment.line)) {
+              usedSegments.set(segment.line, new Set());
+            }
+            // Store station pairs for this segment
+            for (let i = 0; i < segment.stations.length - 1; i++) {
+              const pair = `${segment.stations[i]}-${segment.stations[i + 1]}`;
+              usedSegments.get(segment.line)?.add(pair);
+            }
+          });
+        }
+      });
+      
+      setSearchResults({
+        ...allSearchResults,
+        hotels: filtered,
+        usedSegments
+      });
+      
+      // Update map with new segments
+      if (onSearchComplete) {
+        onSearchComplete(usedSegments);
+      }
+    }
+  }, [maxJourneyTime, allSearchResults, onSearchComplete]);
+
+  const searchWithPostcode = async (searchPostcode: string) => {
+    if (!isValidUKPostcode(searchPostcode)) {
+      setIsValidPostcode(false);
+      return;
+    }
+
+    setIsSearching(true);
+    setShowQuickPicks(false);
+    
+    // Look up postcode coordinates
+    const location = await lookupPostcode(searchPostcode);
+    
+    if (location) {
+      // Find nearest stations
+      const nearbyStations = findNearestStations(location.lat, location.lng, stations);
+      
+      if (nearbyStations.length > 0) {
+        // Auto-select closest station
+        setSelectedStation(nearbyStations[0].station.id);
+        
+        // Find best hotels for each nearby station
+        const hotelResults = await findBestHotels(nearbyStations);
+        
+        // Collect all line segments used in routes
+        const usedSegments = new Map<string, Set<string>>(); // line -> set of station pairs
+        hotelResults.forEach((hotel: any) => {
+          if (hotel.route && hotel.route.segments) {
+            hotel.route.segments.forEach((segment: any) => {
+              if (!usedSegments.has(segment.line)) {
+                usedSegments.set(segment.line, new Set());
+              }
+              // Store station pairs for this segment
+              for (let i = 0; i < segment.stations.length - 1; i++) {
+                const pair = `${segment.stations[i]}-${segment.stations[i + 1]}`;
+                usedSegments.get(segment.line)?.add(pair);
+              }
+            });
+          }
+        });
+        
+        // Store all results
+        const results = {
+          postcode: formatPostcode(searchPostcode),
+          location,
+          nearbyStations,
+          hotels: hotelResults,
+          usedSegments // Add this to results
+        };
+        setAllSearchResults(results);
+        setSearchResults(results);
+        
+        // Call the callback to show hotels on map with used segments info
+        if (onSearchComplete) {
+          onSearchComplete(usedSegments);
+        }
+      }
+    } else {
+      setIsValidPostcode(false);
+    }
+    
+    setIsSearching(false);
   };
 
   const handleQuickPick = (quickPostcode: string) => {
     setPostcode(quickPostcode);
     setIsValidPostcode(true);
+    searchWithPostcode(quickPostcode);
   };
 
   const handleBookNow = (hotelOption: any) => {
@@ -264,7 +343,21 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
                 {searchResults.nearbyStations.slice(0, 3).map((s: any) => (
                   <button
                     key={s.station.id}
-                    onClick={() => setSelectedStation(s.station.id)}
+                    onClick={async () => {
+                      setSelectedStation(s.station.id);
+                      // Re-run search with this station as primary
+                      const reorderedStations = [
+                        s,
+                        ...searchResults.nearbyStations.filter((ns: any) => ns.station.id !== s.station.id)
+                      ];
+                      const hotelResults = await findBestHotels(reorderedStations);
+                      const results = {
+                        ...searchResults,
+                        hotels: hotelResults
+                      };
+                      setAllSearchResults(results);
+                      setSearchResults(results);
+                    }}
                     className={`station-pill ${selectedStation === s.station.id ? 'active' : ''}`}
                   >
                     {s.station.name} ({s.walkingMinutes} min)

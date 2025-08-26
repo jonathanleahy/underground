@@ -103,6 +103,7 @@ export const UndergroundMapOverlay: React.FC = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
   const [actualPriceRange, setActualPriceRange] = useState<[number, number]>([0, 500]);
   const [showCommuterFinder, setShowCommuterFinder] = useState(false);
+  const [usedLineSegments, setUsedLineSegments] = useState<Map<string, Set<string>> | null>(null);
 
   const center: LatLngExpression = [
     (typedData.bounds.north + typedData.bounds.south) / 2,
@@ -429,6 +430,12 @@ export const UndergroundMapOverlay: React.FC = () => {
                 setShowPricesOnMap(true);
               }}
               onShowRoute={handleCommuterShowRoute}
+              onSearchComplete={(usedSegments) => {
+                // Automatically show hotels and prices when search completes
+                setShowHotels(true);
+                setShowPricesOnMap(true);
+                setUsedLineSegments(usedSegments || null);
+              }}
             />
           )}
         </div>
