@@ -382,6 +382,39 @@
   font-weight: 600;
 }
 
+/* Map dimming effect */
+.leaflet-tile-pane {
+  transition: opacity 0.3s ease;
+}
+
+/* Different dim levels */
+.map-dimmed-1 {
+  filter: grayscale(20%);
+  transition: filter 0.3s ease;
+}
+
+.map-dimmed-2 {
+  filter: grayscale(50%) contrast(0.9);
+  transition: filter 0.3s ease;
+}
+
+.map-dimmed-3 {
+  filter: grayscale(80%) contrast(0.8) brightness(1.1);
+  transition: filter 0.3s ease;
+}
+
+.dim-map-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.dim-map-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .integrated-map-view {
