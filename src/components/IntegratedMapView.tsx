@@ -157,6 +157,7 @@ export const IntegratedMapView: React.FC = () => {
   const [mapBounds, setMapBounds] = useState<{ lat: number; lng: number }[] | null>(null);
   const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showPrices, setShowPrices] = useState(true);
+  const [dimMap, setDimMap] = useState(false);
   const [selectedDate] = useState({
     checkIn: '',
     nights: 1,
@@ -424,6 +425,33 @@ export const IntegratedMapView: React.FC = () => {
           </div>
         </div>
         
+        {/* Map Dimmer Toggle - show when route is active */}
+        {currentRoute && (
+          <button 
+            className="dim-map-btn"
+            style={{
+              position: 'absolute',
+              top: '20px',
+              left: hasZoomed && previousBounds ? '180px' : '20px',
+              zIndex: 1000,
+              padding: '10px 16px',
+              background: 'white',
+              border: `2px solid ${dimMap ? '#f59e0b' : '#6b7280'}`,
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              color: dimMap ? '#f59e0b' : '#6b7280',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            }}
+            onClick={() => setDimMap(!dimMap)}
+            title={dimMap ? 'Restore map brightness' : 'Dim map for better route visibility'}
+          >
+            {dimMap ? '🔆' : '🔅'} {dimMap ? 'Brighten Map' : 'Dim Map'}
+          </button>
+        )}
+        
         {/* Reset Zoom Button - always visible */}
         <button 
           className="reset-zoom-btn"
@@ -475,6 +503,8 @@ export const IntegratedMapView: React.FC = () => {
           <TileLayer
             url={getTileUrl()}
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            opacity={currentRoute && dimMap ? 0.3 : 1}
+            className={currentRoute && dimMap ? 'map-dimmed' : ''}
           />
           
           <MapController 
