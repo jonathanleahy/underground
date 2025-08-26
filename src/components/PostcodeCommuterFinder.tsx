@@ -17,9 +17,10 @@ interface PostcodeCommuterFinderProps {
     adults: number;
     children: number;
   };
-  onSelectHotel: (hotel: any) => void;
-  onShowRoute: (fromStation: string, toStation: string) => void;
-  onSearchComplete?: (usedSegments?: Map<string, Set<string>>, visibleHotelIds?: Set<string>, searchBounds?: { lat: number; lng: number }[]) => void;
+  onSelectHotel: (hotel: any, hotelDetails?: any) => void;
+  onShowRoute: (fromStation: string, toStation: string, hotelLocation?: { lat: number; lng: number }) => void;
+  onSearchComplete?: (usedSegments?: Map<string, Set<string>>, visibleHotelIds?: Set<string>, searchBounds?: { lat: number; lng: number }[], workLocation?: { lat: number; lng: number; postcode: string }) => void;
+  highlightedHotelId?: string | null;
 }
 
 export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
@@ -29,7 +30,8 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   selectedDate,
   onSelectHotel,
   onShowRoute,
-  onSearchComplete
+  onSearchComplete,
+  highlightedHotelId
 }) => {
   const [postcode, setPostcode] = useState('');
   const [isValidPostcode, setIsValidPostcode] = useState(true);
@@ -37,10 +39,23 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
   const [searchResults, setSearchResults] = useState<any>(null);
   const [selectedStation, setSelectedStation] = useState<string>('');
   const [maxJourneyTime, setMaxJourneyTime] = useState(30);
+  const [maxPrice, setMaxPrice] = useState(200); // Max price per night
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 200 }); // Actual price range from results
   const [showQuickPicks, setShowQuickPicks] = useState(true);
   const [allSearchResults, setAllSearchResults] = useState<any>(null); // Store all results
   const [filteredResults, setFilteredResults] = useState<any>(null); // Store filtered results
   const [expandedHotels, setExpandedHotels] = useState<Set<string>>(new Set()); // Track expanded hotels
+  const [selectedHotels, setSelectedHotels] = useState<Set<string>>(new Set()); // Track selected hotels for map display
+  
+  // Date and guest selection
+  const [checkInDate, setCheckInDate] = useState(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  });
+  const [nights, setNights] = useState(1);
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
 
   const handlePostcodeSubmit = () => {
     searchWithPostcode(postcode);
@@ -77,8 +92,8 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
             let price = priceInfo?.price;
             
             if (!price) {
-              // Use deterministic price calculation
-              price = calculateHotelPrice(hotel.id, hotel.lat, hotel.lng, selectedDate.checkIn);
+              // Use deterministic price calculation with current date
+              price = calculateHotelPrice(hotel.id, hotel.lat, hotel.lng, checkInDate);
             }
             
             allHotelOptions.push({
@@ -91,7 +106,7 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
               totalTime: stationInfo.walkingMinutes + route.estimatedTime + walkingMinutes,
               lineChanges: route.changes,
               price,
-              totalCost: price * (selectedDate.nights || 1),
+              totalCost: price * nights,
               available: priceInfo?.available !== false,
               roomsLeft: priceInfo?.roomsLeft,
               route
@@ -114,14 +129,14 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
       if (seen.has(opt.hotel.id)) return false;
       seen.add(opt.hotel.id);
       return true;
-    }).slice(0, 20); // Get more hotels initially for better filtering
+    }); // Return ALL hotels, let the time filter handle limiting
   };
 
-  // Filter results when journey time changes
+  // Filter results when journey time or price changes
   useEffect(() => {
     if (allSearchResults && allSearchResults.hotels) {
       const filtered = allSearchResults.hotels.filter((hotel: any) => 
-        hotel.totalTime <= maxJourneyTime
+        hotel.totalTime <= maxJourneyTime && hotel.price <= maxPrice
       );
       
       // Re-sort by score
@@ -131,12 +146,14 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         return scoreA - scoreB;
       });
       
-      // Recalculate used segments and visible hotels for filtered results
+      // Recalculate used segments, visible hotels and bounds for filtered results
       const usedSegments = new Map<string, Set<string>>();
       const visibleHotelIds = new Set<string>();
+      const bounds: { lat: number; lng: number }[] = [];
       
       filtered.forEach((hotel: any) => {
         visibleHotelIds.add(hotel.hotel.id);
+        bounds.push({ lat: hotel.hotel.lat, lng: hotel.hotel.lng });
         
         if (hotel.route && hotel.route.segments) {
           hotel.route.segments.forEach((segment: any) => {
@@ -152,18 +169,42 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
         }
       });
       
+      // Add workplace location to bounds
+      if (allSearchResults.location) {
+        bounds.push({
+          lat: allSearchResults.location.lat,
+          lng: allSearchResults.location.lng
+        });
+      }
+      
       setSearchResults({
         ...allSearchResults,
         hotels: filtered,
         usedSegments
       });
       
-      // Update map with new segments and visible hotels (no bounds change on filter)
-      if (onSearchComplete) {
-        onSearchComplete(usedSegments, visibleHotelIds, undefined);
+      setFilteredResults({ ...allSearchResults, hotels: filtered });
+      
+      // Reset selected hotels to all filtered hotels
+      const allFilteredIds = new Set(filtered.map((h: any) => h.hotel.id));
+      setSelectedHotels(allFilteredIds);
+      
+      // Update map with new segments, visible hotels and proper bounds
+      if (onSearchComplete && allSearchResults.location) {
+        onSearchComplete(
+          usedSegments, 
+          visibleHotelIds, 
+          bounds,
+          {
+            lat: allSearchResults.location.lat,
+            lng: allSearchResults.location.lng,
+            postcode: allSearchResults.formattedPostcode || allSearchResults.postcode
+          },
+          filteredResults || allSearchResults // Pass the filtered or all search results
+        );
       }
     }
-  }, [maxJourneyTime, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
+  }, [maxJourneyTime, maxPrice, allSearchResults]); // Remove onSearchComplete from dependencies to prevent loop
 
   const searchWithPostcode = async (searchPostcode: string) => {
     if (!isValidUKPostcode(searchPostcode)) {
@@ -175,7 +216,9 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
     setShowQuickPicks(false);
     
     // Look up postcode coordinates
+    console.log('Searching for postcode:', searchPostcode);
     const location = await lookupPostcode(searchPostcode);
+    console.log('Postcode lookup result:', location);
     
     if (location) {
       // Find nearest stations
@@ -209,6 +252,15 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
           }
         });
         
+        // Calculate price range from results
+        if (hotelResults.length > 0) {
+          const prices = hotelResults.map((h: any) => h.price);
+          const minPrice = Math.min(...prices);
+          const maxPrice = Math.max(...prices);
+          setPriceRange({ min: minPrice, max: maxPrice });
+          setMaxPrice(maxPrice); // Set initial filter to max price
+        }
+        
         // Store all results
         const results = {
           postcode: formatPostcode(searchPostcode),
@@ -216,10 +268,15 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
           nearbyStations,
           hotels: hotelResults,
           usedSegments,
-          visibleHotelIds
+          visibleHotelIds,
+          formattedPostcode: formatPostcode(searchPostcode) // Store formatted postcode
         };
         setAllSearchResults(results);
         setSearchResults(results);
+        
+        // Initialize all hotels as selected
+        const allHotelIds = new Set(hotelResults.map((h: any) => h.hotel.id));
+        setSelectedHotels(allHotelIds);
         
         // Calculate bounds for map zoom (include destination and hotels)
         const bounds: { lat: number; lng: number }[] = [
@@ -227,9 +284,13 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
           ...hotelResults.slice(0, 5).map(h => ({ lat: h.hotel.lat, lng: h.hotel.lng })) // Top 5 hotels
         ];
         
-        // Call the callback to show hotels on map and zoom
-        if (onSearchComplete) {
-          onSearchComplete(usedSegments, visibleHotelIds, bounds);
+        // Call the callback to show hotels on map and zoom, including workplace location
+        if (onSearchComplete && location) {
+          onSearchComplete(usedSegments, visibleHotelIds, bounds, {
+            lat: location.lat,
+            lng: location.lng,
+            postcode: formatPostcode(searchPostcode)
+          }, searchResults);
         }
       }
     } else {
@@ -245,14 +306,91 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
     searchWithPostcode(quickPostcode);
   };
 
-  const toggleHotelExpand = (hotelId: string) => {
-    const newExpanded = new Set(expandedHotels);
-    if (newExpanded.has(hotelId)) {
-      newExpanded.delete(hotelId);
-    } else {
-      newExpanded.add(hotelId);
+  const handleHotelClick = (hotel: any) => {
+    // Always pass full hotel details to parent to show the details panel
+    onSelectHotel(hotel.hotel, hotel);
+    
+    // Show route if we have valid stations - this will also trigger viewport update
+    if (hotel.hotelStation && hotel.workplaceStation) {
+      onShowRoute(
+        hotel.hotelStation.id,
+        hotel.workplaceStation.id,
+        { lat: hotel.hotel.lat, lng: hotel.hotel.lng }
+      );
     }
-    setExpandedHotels(newExpanded);
+    
+    // Also expand the hotel in the left panel
+    const newExpanded = new Set(expandedHotels);
+    if (!newExpanded.has(hotel.hotel.id)) {
+      newExpanded.add(hotel.hotel.id);
+      setExpandedHotels(newExpanded);
+    }
+  };
+  
+  const toggleHotelSelection = (hotelId: string) => {
+    const newSelected = new Set(selectedHotels);
+    if (newSelected.has(hotelId)) {
+      newSelected.delete(hotelId);
+    } else {
+      newSelected.add(hotelId);
+    }
+    setSelectedHotels(newSelected);
+    updateMapWithSelectedHotels(newSelected);
+  };
+  
+  const selectAllHotels = () => {
+    if (filteredResults && filteredResults.hotels) {
+      const allIds = new Set(filteredResults.hotels.map((h: any) => h.hotel.id));
+      setSelectedHotels(allIds);
+      updateMapWithSelectedHotels(allIds);
+    }
+  };
+  
+  const clearAllHotels = () => {
+    setSelectedHotels(new Set());
+    updateMapWithSelectedHotels(new Set());
+  };
+  
+  const updateMapWithSelectedHotels = (selectedIds: Set<string>) => {
+    if (!filteredResults || !filteredResults.hotels) return;
+    
+    // Show selected hotels, or all if none selected
+    const hotelData = selectedIds.size > 0 
+      ? filteredResults.hotels.filter((h: any) => selectedIds.has(h.hotel.id))
+      : filteredResults.hotels;
+    
+    // Recalculate visible hotels and bounds
+    const visibleHotelIds = new Set<string>(hotelData.map((h: any) => h.hotel.id));
+    
+    // Calculate bounds including hotels and workplace
+    const bounds: { lat: number; lng: number }[] = [];
+    
+    // Add hotel locations to bounds
+    hotelData.forEach((h: any) => {
+      bounds.push({ lat: h.hotel.lat, lng: h.hotel.lng });
+    });
+    
+    // Add workplace location to bounds
+    if (allSearchResults?.location) {
+      bounds.push({ 
+        lat: allSearchResults.location.lat, 
+        lng: allSearchResults.location.lng 
+      });
+    }
+    
+    if (onSearchComplete && allSearchResults?.location) {
+      onSearchComplete(
+        allSearchResults.usedSegments, 
+        visibleHotelIds, 
+        bounds, // Pass the calculated bounds
+        {
+          lat: allSearchResults.location.lat,
+          lng: allSearchResults.location.lng,
+          postcode: allSearchResults.formattedPostcode || allSearchResults.postcode
+        },
+        filteredResults || allSearchResults // Pass the current results
+      );
+    }
   };
 
   const handleBookNow = (hotelOption: any) => {
@@ -272,10 +410,58 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
 
   return (
     <div className="postcode-commuter-finder">
-      {/* Header */}
-      <div className="finder-header">
-        <h3>🏨 Hotels Near Your Workplace</h3>
-        <p className="subtitle">Enter your office postcode to find the perfect hotel</p>
+      {/* Date and Guest Selection */}
+      <div className="date-guest-section">
+        <div className="date-inputs">
+          <div className="input-group">
+            <label>Check-in Date</label>
+            <input
+              type="date"
+              value={checkInDate}
+              onChange={(e) => setCheckInDate(e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
+              className="date-input"
+            />
+          </div>
+          <div className="input-group">
+            <label>Nights</label>
+            <select 
+              value={nights} 
+              onChange={(e) => setNights(Number(e.target.value))}
+              className="nights-select"
+            >
+              {[1,2,3,4,5,6,7,14,21,28].map(n => (
+                <option key={n} value={n}>{n} {n === 1 ? 'night' : 'nights'}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="guest-inputs">
+          <div className="input-group">
+            <label>Adults</label>
+            <select 
+              value={adults} 
+              onChange={(e) => setAdults(Number(e.target.value))}
+              className="guest-select"
+            >
+              {[1,2,3,4].map(n => (
+                <option key={n} value={n}>{n} {n === 1 ? 'adult' : 'adults'}</option>
+              ))}
+            </select>
+          </div>
+          <div className="input-group">
+            <label>Children</label>
+            <select 
+              value={children} 
+              onChange={(e) => setChildren(Number(e.target.value))}
+              className="guest-select"
+            >
+              {[0,1,2,3,4].map(n => (
+                <option key={n} value={n}>{n} {n === 1 ? 'child' : 'children'}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Postcode Input */}
@@ -314,12 +500,32 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
           <input
             type="range"
             min="15"
-            max="60"
+            max="90"
             step="5"
             value={maxJourneyTime}
             onChange={(e) => setMaxJourneyTime(parseInt(e.target.value))}
             className="time-slider"
           />
+          <div className="time-guides">
+            <button 
+              onClick={() => setMaxJourneyTime(30)}
+              className={maxJourneyTime <= 30 ? 'active' : ''}
+            >
+              Short (≤30min)
+            </button>
+            <button 
+              onClick={() => setMaxJourneyTime(45)}
+              className={maxJourneyTime > 30 && maxJourneyTime <= 60 ? 'active' : ''}
+            >
+              Medium (30-60min)
+            </button>
+            <button 
+              onClick={() => setMaxJourneyTime(75)}
+              className={maxJourneyTime > 60 ? 'active' : ''}
+            >
+              Long (60-90min)
+            </button>
+          </div>
         </div>
       </div>
 
@@ -351,7 +557,11 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
       )}
 
       {/* Results */}
-      {searchResults && !isSearching && (
+      {searchResults && !isSearching && (() => {
+        // Use filtered results if available, otherwise use original search results
+        const displayHotels = filteredResults?.hotels || searchResults.hotels || [];
+        
+        return (
         <div className="search-results">
           <div className="results-header">
             <h4>Hotels near {searchResults.postcode}</h4>
@@ -385,70 +595,82 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
 
           {/* Hotel Results */}
           <div className="hotel-results">
-            {searchResults.hotels.length > 0 ? (
+            {displayHotels.length > 0 ? (
               <>
                 {/* Hero Recommendation */}
-                {searchResults.hotels[0] && (
-                  <div className="hero-hotel">
+                {displayHotels[0] && (
+                  <div 
+                    className={`hero-hotel ${highlightedHotelId === displayHotels[0].hotel.id ? 'highlighted' : ''}`}
+                    onClick={() => handleHotelClick(displayHotels[0])}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className="hero-badge">🏆 BEST MATCH</div>
                     
                     <div className="hero-content">
                       <div className="hero-info">
-                        <h5>{searchResults.hotels[0].hotel.name}</h5>
-                        <p className="hero-area">{searchResults.hotels[0].hotel.area}</p>
+                        <h5>{displayHotels[0].hotel.name}</h5>
+                        <p className="hero-area">{displayHotels[0].hotel.area}</p>
                         
                         <div className="journey-breakdown">
                           <div className="journey-step">
                             <span className="step-icon">🏨</span>
-                            <span>{searchResults.hotels[0].hotelWalkTime} min walk to {searchResults.hotels[0].hotelStation.name}</span>
+                            <span>{displayHotels[0].hotelWalkTime} min walk to {displayHotels[0].hotelStation.name}</span>
                           </div>
                           <div className="journey-step">
                             <span className="step-icon">🚇</span>
-                            <span>{searchResults.hotels[0].tubeTime} min tube journey
-                              {searchResults.hotels[0].lineChanges > 0 && 
-                                ` (${searchResults.hotels[0].lineChanges} change${searchResults.hotels[0].lineChanges > 1 ? 's' : ''})`}
+                            <span>{displayHotels[0].tubeTime} min tube journey
+                              {displayHotels[0].lineChanges > 0 && 
+                                ` (${displayHotels[0].lineChanges} change${displayHotels[0].lineChanges > 1 ? 's' : ''})`}
                             </span>
                           </div>
                           <div className="journey-step">
                             <span className="step-icon">🚶</span>
-                            <span>{searchResults.hotels[0].workplaceWalkTime} min walk to office</span>
+                            <span>{displayHotels[0].workplaceWalkTime} min walk to office</span>
                           </div>
                         </div>
                         
                         <div className="journey-total">
-                          Total journey: <strong>{searchResults.hotels[0].totalTime} minutes</strong>
+                          Total journey: <strong>{displayHotels[0].totalTime} minutes</strong>
                         </div>
                       </div>
                       
                       <div className="hero-booking">
                         <div className="hero-price">
-                          <span className="price-amount">£{searchResults.hotels[0].price}</span>
+                          <span className="price-amount">£{displayHotels[0].price}</span>
                           <span className="price-period">per night</span>
                         </div>
                         
                         {selectedDate.nights > 1 && (
                           <div className="total-stay">
-                            {selectedDate.nights} nights: £{searchResults.hotels[0].totalCost}
+                            {selectedDate.nights} nights: £{displayHotels[0].totalCost}
                           </div>
                         )}
                         
-                        {searchResults.hotels[0].roomsLeft && searchResults.hotels[0].roomsLeft <= 3 && (
-                          <div className="urgency">🔥 Only {searchResults.hotels[0].roomsLeft} left!</div>
+                        {displayHotels[0].roomsLeft && displayHotels[0].roomsLeft <= 3 && (
+                          <div className="urgency">🔥 Only {displayHotels[0].roomsLeft} left!</div>
                         )}
                         
                         <button
                           className="hero-book-btn"
-                          onClick={() => handleBookNow(searchResults.hotels[0])}
-                          disabled={!searchResults.hotels[0].available}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering the card click
+                            handleBookNow(displayHotels[0]);
+                          }}
+                          disabled={!displayHotels[0].available}
                         >
-                          {searchResults.hotels[0].available ? 'Book Now →' : 'Sold Out'}
+                          {displayHotels[0].available ? 'Book Now →' : 'Sold Out'}
                         </button>
                         
                         <button
                           className="view-map-btn"
-                          onClick={() => {
-                            onSelectHotel(searchResults.hotels[0].hotel);
-                            onShowRoute(searchResults.hotels[0].hotelStation.id, searchResults.hotels[0].workplaceStation.id);
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering the card click
+                            onSelectHotel(displayHotels[0].hotel, displayHotels[0]);
+                            onShowRoute(
+                              displayHotels[0].hotelStation.id, 
+                              displayHotels[0].workplaceStation.id,
+                              { lat: displayHotels[0].hotel.lat, lng: displayHotels[0].hotel.lng }
+                            );
                           }}
                         >
                           View Route
@@ -459,28 +681,46 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
                 )}
 
                 {/* Other Options */}
-                {searchResults.hotels.length > 1 && (
+                {displayHotels.length > 1 && (
                   <div className="other-options">
-                    <h5>Other great options:</h5>
+                    <div className="options-header">
+                      <h5>Other great options:</h5>
+                      <div className="selection-controls">
+                        <button onClick={selectAllHotels} className="select-btn">Select All</button>
+                        <button onClick={clearAllHotels} className="select-btn">Clear</button>
+                        <span className="selection-count">{selectedHotels.size} selected</span>
+                      </div>
+                    </div>
                     <div className="option-list">
-                      {searchResults.hotels.slice(1, 5).map((opt: any, idx: number) => {
+                      {displayHotels.slice(1, 5).map((opt: any, idx: number) => {
                         const isExpanded = expandedHotels.has(opt.hotel.id);
+                        const isSelected = selectedHotels.has(opt.hotel.id);
+                        const isHighlighted = highlightedHotelId === opt.hotel.id;
                         return (
-                          <div key={idx} className={`option-item ${isExpanded ? 'expanded' : ''}`}>
-                            <div 
-                              className="option-header"
-                              onClick={() => toggleHotelExpand(opt.hotel.id)}
-                            >
-                              <div className="option-info">
-                                <strong>{opt.hotel.name}</strong>
-                                <span className="option-stats">
-                                  {opt.totalTime} min • £{opt.price}/night
-                                  {opt.lineChanges === 0 && ' • Direct'}
-                                </span>
+                          <div key={idx} className={`option-item ${isExpanded ? 'expanded' : ''} ${isSelected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''}`}>
+                            <div className="option-header">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleHotelSelection(opt.hotel.id)}
+                                className="hotel-checkbox"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <div 
+                                className="option-header-content"
+                                onClick={() => handleHotelClick(opt)}
+                              >
+                                <div className="option-info">
+                                  <strong>{opt.hotel.name}</strong>
+                                  <span className="option-stats">
+                                    {opt.totalTime} min • £{opt.price}/night
+                                    {opt.lineChanges === 0 && ' • Direct'}
+                                  </span>
+                                </div>
+                                <button className="expand-btn">
+                                  {isExpanded ? '−' : '+'}
+                                </button>
                               </div>
-                              <button className="expand-btn">
-                                {isExpanded ? '−' : '+'}
-                              </button>
                             </div>
                             
                             {isExpanded && (
@@ -507,8 +747,12 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
                                     className="view-route-btn compact"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      onSelectHotel(opt.hotel);
-                                      onShowRoute(opt.hotelStation.id, opt.workplaceStation.id);
+                                      onSelectHotel(opt.hotel, opt);
+                                      onShowRoute(
+                                        opt.hotelStation.id, 
+                                        opt.workplaceStation.id,
+                                        { lat: opt.hotel.lat, lng: opt.hotel.lng }
+                                      );
                                     }}
                                   >
                                     View Route
@@ -541,7 +785,8 @@ export const PostcodeCommuterFinder: React.FC<PostcodeCommuterFinderProps> = ({
             )}
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Trust Elements */}
       <div className="trust-bar">
