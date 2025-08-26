@@ -8,6 +8,10 @@ import trackGeometry from '../data/track-geometry.json';
 import { lineConnections } from '../data/line-connections';
 import { SearchBar } from './SearchBar';
 import { DatePicker } from './DatePicker';
+import { PriceLabel } from './PriceLabel';
+import { RoutePlanner } from './RoutePlanner';
+import { PriceFilter } from './PriceFilter';
+import { Route as JourneyRoute } from '../services/routingService';
 import { smoothLinePath, getLineCurveParams } from '../utils/bezierCurves';
 import { fetchMultipleHotelPricing } from '../services/premier-inn-api';
 import { getBookingUrl } from '../data/premier-inn-urls';
@@ -92,6 +96,10 @@ export const UndergroundMapOverlay: React.FC = () => {
     adults: 1,
     children: 0
   });
+  const [currentRoute, setCurrentRoute] = useState<JourneyRoute | null>(null);
+  const [showRoutePlanner, setShowRoutePlanner] = useState(false);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
+  const [actualPriceRange, setActualPriceRange] = useState<[number, number]>([0, 500]);
 
   const center: LatLngExpression = [
     (typedData.bounds.north + typedData.bounds.south) / 2,
@@ -166,6 +174,32 @@ export const UndergroundMapOverlay: React.FC = () => {
     setSelectedDate({ checkIn, nights, adults, children });
   };
 
+  const handleRouteFound = (route: JourneyRoute) => {
+    setCurrentRoute(route);
+    // TODO: Highlight route on map
+  };
+  
+  const handleStationHighlightFromRoute = (stationId: string) => {
+    const station = typedData.stations.find(s => s.id === stationId);
+    if (station) {
+      setFocusLocation({ lat: station.lat, lng: station.lng });
+      setHighlightedItem({ id: stationId, type: 'station' });
+      setTimeout(() => setHighlightedItem(null), 3000);
+    }
+  };
+  
+  const handlePriceFilterChange = (min: number, max: number) => {
+    setPriceRange([min, max]);
+  };
+  
+  const isHotelInPriceRange = (hotelId: string): boolean => {
+    const pricing = hotelPricing.get(hotelId);
+    if (!pricing || !pricing.available || !pricing.price) {
+      return false; // Hide sold out hotels
+    }
+    return pricing.price >= priceRange[0] && pricing.price <= priceRange[1];
+  };
+  
   const handleSearchPrices = async () => {
     if (!selectedDate.checkIn) {
       console.error('No check-in date selected');
@@ -179,10 +213,14 @@ export const UndergroundMapOverlay: React.FC = () => {
       checkOut.setDate(checkOut.getDate() + selectedDate.nights);
       const checkOutStr = checkOut.toISOString().split('T')[0];
       
-      // Fetch real pricing from our API service
-      const hotelIds = premierInnData.hotels.map(h => h.id);
+      // Fetch real pricing from our API service with hotel coordinates
+      const hotelsWithCoords = premierInnData.hotels.map(h => ({
+        id: h.id,
+        lat: h.lat,
+        lng: h.lng
+      }));
       const prices = await fetchMultipleHotelPricing(
-        hotelIds,
+        hotelsWithCoords,
         selectedDate.checkIn,
         checkOutStr,
         selectedDate.adults,
@@ -191,6 +229,20 @@ export const UndergroundMapOverlay: React.FC = () => {
       
       setHotelPricing(prices);
       setShowHotels(true); // Auto-show hotels when prices are fetched
+      
+      // Calculate min and max prices for filter
+      let min = Infinity;
+      let max = 0;
+      prices.forEach(price => {
+        if (price.available && price.price) {
+          min = Math.min(min, price.price);
+          max = Math.max(max, price.price);
+        }
+      });
+      if (min !== Infinity) {
+        setActualPriceRange([Math.floor(min), Math.ceil(max)]);
+        setPriceRange([Math.floor(min), Math.ceil(max)]);
+      }
     } catch (error) {
       console.error('Error fetching prices:', error);
     }
@@ -203,11 +255,51 @@ export const UndergroundMapOverlay: React.FC = () => {
         onStationSelect={handleStationSelect}
         onHotelSelect={handleHotelSelect}
       />
+      
+      <div style={{ marginBottom: '12px' }}>
+        <button
+          onClick={() => setShowRoutePlanner(!showRoutePlanner)}
+          style={{
+            padding: '10px 16px',
+            background: showRoutePlanner 
+              ? 'linear-gradient(135deg, #DC2626, #991B1B)' 
+              : 'linear-gradient(135deg, #3B82F6, #1E40AF)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            width: '100%',
+            marginBottom: '8px'
+          }}
+        >
+          {showRoutePlanner ? '✕ Close Journey Planner' : '🚇 Open Journey Planner'}
+        </button>
+      </div>
+      
+      {showRoutePlanner && (
+        <RoutePlanner
+          onRouteFound={handleRouteFound}
+          onStationHighlight={handleStationHighlightFromRoute}
+        />
+      )}
+      
       <div className="map-controls">
         <DatePicker 
           onDateChange={handleDateChange}
           onSearch={handleSearchPrices}
         />
+        
+        {showHotels && hotelPricing.size > 0 && (
+          <PriceFilter
+            minPrice={actualPriceRange[0]}
+            maxPrice={actualPriceRange[1]}
+            onFilterChange={handlePriceFilterChange}
+            hotelCount={premierInnData.hotels.length}
+            filteredCount={premierInnData.hotels.filter(h => isHotelInPriceRange(h.id)).length}
+          />
+        )}
         
         <div className="control-section">
           <h3>London Underground Lines</h3>
@@ -469,14 +561,23 @@ export const UndergroundMapOverlay: React.FC = () => {
         {showHotels && premierInnData.hotels.map(hotel => {
           const position: LatLngExpression = [hotel.lat, hotel.lng];
           const isHighlighted = highlightedItem?.type === 'hotel' && highlightedItem.id === hotel.id;
+          const inPriceRange = hotelPricing.size === 0 || isHotelInPriceRange(hotel.id);
+          
+          // Calculate opacity based on price filter and availability
+          let opacity = 0.8;
+          if (!inPriceRange) {
+            opacity = 0.2; // Very transparent if outside price range or sold out
+          } else if (isHighlighted) {
+            opacity = 1;
+          }
           
           return (
-            <Marker
-              key={hotel.id}
-              position={position}
-              icon={hotelIcon}
-              opacity={isHighlighted ? 1 : 0.8}
-            >
+            <React.Fragment key={hotel.id}>
+              <Marker
+                position={position}
+                icon={hotelIcon}
+                opacity={opacity}
+              >
               <Popup>
                 <div className="hotel-popup">
                   <h4>🏨 {hotel.name}</h4>
@@ -539,6 +640,17 @@ export const UndergroundMapOverlay: React.FC = () => {
                 </div>
               </Popup>
             </Marker>
+            
+            {/* Show price label on map if enabled and in price range */}
+            {showPricesOnMap && hotelPricing.has(hotel.id) && inPriceRange && (
+              <PriceLabel
+                position={[hotel.lat, hotel.lng]}
+                price={hotelPricing.get(hotel.id).price}
+                available={hotelPricing.get(hotel.id).available}
+                originalPrice={hotelPricing.get(hotel.id).originalPrice}
+              />
+            )}
+          </React.Fragment>
           );
         })}
       </MapContainer>

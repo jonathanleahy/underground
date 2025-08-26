@@ -12,39 +12,42 @@ interface PriceLabelProps {
 export const PriceLabel: React.FC<PriceLabelProps> = ({ position, price, available, originalPrice }) => {
   const content = available && price ? 
     `<div style="
-      background: ${originalPrice ? 'linear-gradient(135deg, #EF4444, #DC2626)' : 'linear-gradient(135deg, #10B981, #059669)'};
+      background: ${originalPrice ? '#EF4444' : '#10B981'};
       color: white;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      padding: 6px 10px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
       white-space: nowrap;
-      position: relative;
-      top: -30px;
-      ${originalPrice ? 'text-decoration: line-through;' : ''}
+      display: inline-block;
+      position: absolute;
+      transform: translate(-50%, -40px);
+      border: 2px solid white;
     ">
-      £${price}
-      ${originalPrice ? `<span style="text-decoration: none; margin-left: 4px;">£${price}</span>` : ''}
+      ${originalPrice ? `<span style="text-decoration: line-through; opacity: 0.8;">£${originalPrice}</span> ` : ''}
+      <span>£${price}</span>
     </div>` : 
     `<div style="
-      background: linear-gradient(135deg, #6B7280, #4B5563);
+      background: #6B7280;
       color: white;
-      padding: 4px 8px;
-      border-radius: 12px;
+      padding: 5px 8px;
+      border-radius: 14px;
       font-size: 11px;
       font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
       white-space: nowrap;
-      position: relative;
-      top: -30px;
+      display: inline-block;
+      position: absolute;
+      transform: translate(-50%, -40px);
+      border: 2px solid white;
     ">
       Sold Out
     </div>`;
 
   const priceIcon = new DivIcon({
     html: content,
-    className: 'price-label-marker',
+    className: '',
     iconSize: [0, 0],
     iconAnchor: [0, 0]
   });
