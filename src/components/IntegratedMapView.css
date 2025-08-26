@@ -325,18 +325,40 @@
   position: relative;
 }
 
-/* Ensure route appears above other elements */
-.leaflet-overlay-pane svg path {
-  z-index: 500;
+/* Z-index hierarchy for map elements */
+/* Hotel badges default level - below routes */
+.leaflet-marker-pane {
+  z-index: 400 !important;
 }
 
-/* Selected hotel marker should be on top */
 .leaflet-marker-icon.hotel-badge-marker {
   z-index: 400 !important;
 }
 
+/* Route lines should be above hotel badges */
+.leaflet-overlay-pane {
+  z-index: 600 !important;
+}
+
+.leaflet-overlay-pane svg {
+  z-index: 600 !important;
+}
+
+/* Route polylines specifically */
+.route-polyline {
+  z-index: 650 !important;
+}
+
+/* Highlighted hotel badge should be above route */
 .leaflet-marker-icon.hotel-badge-marker .hotel-map-badge.highlighted {
-  z-index: 1000 !important;
+  z-index: 700 !important;
+  position: relative !important;
+}
+
+/* When route is showing, dim non-route hotels */
+.integrated-map-view.route-active .hotel-map-badge:not(.highlighted) {
+  opacity: 0.6;
+  z-index: 350 !important;
 }
 
 .hotel-map-badge.highlighted .badge-price,

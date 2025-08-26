@@ -551,7 +551,7 @@ export const IntegratedMapView: React.FC = () => {
   };
   
   return (
-    <div className={`integrated-map-view ${detailsPanelOpen ? 'details-open' : ''}`}>
+    <div className={`integrated-map-view ${detailsPanelOpen ? 'details-open' : ''} ${currentRoute ? 'route-active' : ''}`}>
       {/* Left Panel */}
       <div className="left-panel">
         <div className="panel-header">
@@ -744,6 +744,8 @@ export const IntegratedMapView: React.FC = () => {
                     weight={6}
                     opacity={0.8}
                     smoothFactor={1}
+                    className="route-polyline"
+                    pane="overlayPane"
                   />
                 ));
           })}
@@ -814,6 +816,7 @@ export const IntegratedMapView: React.FC = () => {
                   
                   <Marker
                     position={position}
+                    pane="markerPane"
                     icon={(() => {
                       const hotelData = allSearchResults?.hotels?.find((h: any) => h.hotel.id === hotel.id);
                       const journeyTime = hotelData?.totalTime;
