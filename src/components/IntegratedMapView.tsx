@@ -157,7 +157,7 @@ export const IntegratedMapView: React.FC = () => {
   const [mapBounds, setMapBounds] = useState<{ lat: number; lng: number }[] | null>(null);
   const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showPrices, setShowPrices] = useState(true);
-  const [dimMap, setDimMap] = useState(false);
+  const [dimLevel, setDimLevel] = useState(0); // 0 = normal, 1 = light dim, 2 = medium dim, 3 = heavy dim
   const [selectedDate] = useState({
     checkIn: '',
     nights: 1,
@@ -436,19 +436,47 @@ export const IntegratedMapView: React.FC = () => {
               zIndex: 1000,
               padding: '10px 16px',
               background: 'white',
-              border: `2px solid ${dimMap ? '#f59e0b' : '#6b7280'}`,
+              border: `2px solid ${dimLevel > 0 ? '#f59e0b' : '#6b7280'}`,
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: 600,
-              color: dimMap ? '#f59e0b' : '#6b7280',
+              color: dimLevel > 0 ? '#f59e0b' : '#6b7280',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             }}
-            onClick={() => setDimMap(!dimMap)}
-            title={dimMap ? 'Restore map brightness' : 'Dim map for better route visibility'}
+            onClick={() => setDimLevel((dimLevel + 1) % 4)}
+            title={`Dim level: ${dimLevel}/3 - Click to cycle`}
           >
-            {dimMap ? '🔆' : '🔅'} {dimMap ? 'Brighten Map' : 'Dim Map'}
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '16px' }}>
+                {dimLevel === 0 && '☀️'}
+                {dimLevel === 1 && '🌤️'}
+                {dimLevel === 2 && '⛅'}
+                {dimLevel === 3 && '☁️'}
+              </span>
+              <span>Dim</span>
+              <span style={{ 
+                display: 'flex', 
+                gap: '3px',
+                padding: '2px 6px',
+                background: dimLevel > 0 ? '#fef3c7' : '#f3f4f6',
+                borderRadius: '4px'
+              }}>
+                {[1, 2, 3].map((level) => (
+                  <span 
+                    key={level}
+                    style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: dimLevel >= level ? '#f59e0b' : '#d1d5db',
+                      transition: 'background 0.2s ease'
+                    }}
+                  />
+                ))}
+              </span>
+            </span>
           </button>
         )}
         
@@ -503,8 +531,8 @@ export const IntegratedMapView: React.FC = () => {
           <TileLayer
             url={getTileUrl()}
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            opacity={currentRoute && dimMap ? 0.3 : 1}
-            className={currentRoute && dimMap ? 'map-dimmed' : ''}
+            opacity={currentRoute ? (1 - (dimLevel * 0.25)) : 1} // 1.0, 0.75, 0.5, 0.25 for levels 0-3
+            className={currentRoute && dimLevel > 0 ? `map-dimmed-${dimLevel}` : ''}
           />
           
           <MapController 

@@ -387,8 +387,19 @@
   transition: opacity 0.3s ease;
 }
 
-.map-dimmed {
-  filter: grayscale(50%);
+/* Different dim levels */
+.map-dimmed-1 {
+  filter: grayscale(20%);
+  transition: filter 0.3s ease;
+}
+
+.map-dimmed-2 {
+  filter: grayscale(50%) contrast(0.9);
+  transition: filter 0.3s ease;
+}
+
+.map-dimmed-3 {
+  filter: grayscale(80%) contrast(0.8) brightness(1.1);
   transition: filter 0.3s ease;
 }
 

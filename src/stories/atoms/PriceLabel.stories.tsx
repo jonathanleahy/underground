@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { PriceLabel } from '@/components/atoms/PriceLabel';
+import { PriceBadge } from '@/components/atoms/PriceBadge';
 
 const meta = {
-  title: 'Atoms/PriceLabel',
-  component: PriceLabel,
+  title: 'Atoms/PriceBadge',
+  component: PriceBadge,
   parameters: {
     layout: 'centered',
   },
@@ -16,10 +16,15 @@ const meta = {
     size: {
       control: 'select',
       options: ['sm', 'md', 'lg'],
-      description: 'Size variant of the price label',
+      description: 'Size variant of the price badge',
+    },
+    variant: {
+      control: 'select',
+      options: ['default', 'discount', 'premium'],
+      description: 'Visual variant of the price badge',
     },
   },
-} satisfies Meta<typeof PriceLabel>;
+} satisfies Meta<typeof PriceBadge>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
